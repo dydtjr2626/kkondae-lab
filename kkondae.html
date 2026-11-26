@@ -67,8 +67,7 @@ select{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer
 @media (hover:hover){select:hover,input[type=text]:hover{border-color:var(--ink)}}
 input[type=text]:focus,select:focus{background-color:var(--paper);border-color:var(--a)}
 /* join */
-.join{position:relative;max-width:460px;width:100%;margin:5vh auto 0;display:flex;flex-direction:column;gap:14px;padding:28px 26px 24px;overflow:hidden;
-  border-top:6px solid var(--ink)}
+.join{position:relative;max-width:460px;width:100%;margin:5vh auto 0;display:flex;flex-direction:column;gap:14px;padding:28px 26px 24px;overflow:hidden}
 .join::after{content:"결재\A대기";white-space:pre;position:absolute;top:22px;right:20px;transform:rotate(11deg);text-align:center;line-height:1.15;
   border:3px solid var(--stamp);color:var(--stamp);border-radius:8px;padding:4px 9px;font-family:var(--font-display);font-size:15px;opacity:.55;pointer-events:none;
   outline:1.5px solid var(--stamp);outline-offset:2px}
@@ -311,6 +310,10 @@ summary{cursor:pointer;font-weight:700;list-style-position:inside}
   .cd{width:150px;height:150px;font-size:90px}
   .chat h3,.log{padding-inline:14px}
   .quick{padding-inline:14px} .send{padding-inline:14px}
+  /* 좁은 화면: 버튼 글자가 세로로 꺾이지 않게, 위 줄에 두 개 · 아래 줄에 랜덤 채팅 */
+  .join .row .btn{white-space:nowrap;padding:13px 12px}
+  .join .row .btn[type=submit],.join .row .btn#make{flex:1 1 calc(50% - 4px)}
+  .join .row .btn#rand{flex:1 1 100%}
 }
 @media (max-width:360px){
   .join::after{display:none}
@@ -926,7 +929,7 @@ function joinView(){
     <div class="row"><button class="btn ghost" type="button" id="randCancel">대기 취소</button></div>
   </div>`;
   return `<form class="card join" id="joinForm">
-    <img class="logo" src="/logo.png" alt="꼰대연구소" width="160" height="56">
+    <img class="logo" src="logo.png" alt="꼰대연구소" width="160" height="56">
     <div class="eyebrow">꼰대력 인증 센터 · 2인 1조</div>
     <h2>나 <span class="hl">꼰대</span>야?<br>너 <span class="hl">꼰대</span>야?</h2>
     <div class="how"><span>① 내 선택</span><span>② 상대 맞히기</span><span>③ 동시 공개</span></div>
@@ -951,7 +954,7 @@ function roomView(){
   }).join('');
   const cr=crowns();
   return `
-  <div class="top"><h1 class="brand"><img class="logo" src="/logo.png" alt="꼰대연구소" width="160" height="56"></h1>
+  <div class="top"><h1 class="brand"><img class="logo" src="logo.png" alt="꼰대연구소" width="160" height="56"></h1>
     <div class="row" style="flex:none"><span class="chip">방 코드 <b>${esc(S.room)}</b><button class="btn ghost small" id="copy">복사</button></span><button class="btn ghost small" id="leave">나가기</button></div></div>
   ${S.err?`<div class="err">${esc(S.err)}</div>`:''}
   <div class="metaline"><span>${round()}회차</span><span>주제 ${esc(pack().name)}</span>${cr&&(cr[0]||cr[1])?`<span>꼰대력 더 높았던 횟수 ${esc(S.players[0].name)} ${cr[0]} : ${cr[1]} ${esc(S.players[1].name)}</span>`:''}</div>
