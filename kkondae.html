@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>꼰대력 테스트</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* 레이아웃: 결재 서류 느낌. 위에 두 사람 명패, 아래 왼쪽 테스트 / 오른쪽 채팅 (모바일은 탭 전환) */
+:root{
+  --bg:#e5e9f1; --paper:#fbfcfe; --paper-2:#f0f3f9; --ink:#14213d; --muted:#586380; --line:#ccd3e0; --line-2:#aeb8cd; --dots:#d3d9e6;
+  --a:#2457d6; --a-soft:#dbe5fb; --on-a:#fff; --b:#0a6e52; --b-soft:#d3efe6; --on-b:#fff;
+  --stamp:#c4182b; --stamp-soft:#fbe0e3; --on-stamp:#fff; --note:#fff4c9; --note-line:#e8d27a;
+  --shadow:0 1px 0 rgba(20,33,61,.05),0 8px 20px -12px rgba(20,33,61,.35);
+  --font-display:'Black Han Sans','Noto Sans KR',sans-serif;
+  --font-body:'Noto Sans KR',system-ui,-apple-system,'Malgun Gothic',sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c111a; --paper:#171f2d; --paper-2:#1d2738; --ink:#e8ecf5; --muted:#9aa7c0; --line:#2b3649; --line-2:#415069; --dots:#18202e;
+  --a:#7ca2ff; --a-soft:#1f2f55; --on-a:#0b1226; --b:#4fd1a8; --b-soft:#15382e; --on-b:#04201a;
+  --stamp:#ff6b78; --stamp-soft:#41202a; --on-stamp:#2b0a10; --note:#3a3217; --note-line:#6b5b22;
+  --shadow:0 1px 0 rgba(0,0,0,.4),0 10px 24px -14px rgba(0,0,0,.8); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c111a; --paper:#171f2d; --paper-2:#1d2738; --ink:#e8ecf5; --muted:#9aa7c0; --line:#2b3649; --line-2:#415069; --dots:#18202e;
+  --a:#7ca2ff; --a-soft:#1f2f55; --on-a:#0b1226; --b:#4fd1a8; --b-soft:#15382e; --on-b:#04201a;
+  --stamp:#ff6b78; --stamp-soft:#41202a; --on-stamp:#2b0a10; --note:#3a3217; --note-line:#6b5b22;
+  --shadow:0 1px 0 rgba(0,0,0,.4),0 10px 24px -14px rgba(0,0,0,.8); color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:radial-gradient(var(--dots) 1.2px,transparent 1.4px);background-size:18px 18px;
+  color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%;
+  padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:400;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--a);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top h1{font-size:30px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.top h1::before{content:"☕";font-size:.8em;display:grid;place-items:center;width:1.5em;height:1.5em;border-radius:8px;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow)}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 14px;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-size:13px;color:var(--muted)}
+.chip b{letter-spacing:.2em;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
+.btn{border:1px solid transparent;border-radius:10px;padding:11px 18px;background:var(--ink);color:var(--bg);font-weight:700;line-height:1.3;
+  transition:transform .12s,box-shadow .15s,background-color .15s,border-color .15s,opacity .15s}
+.btn:active{transform:translateY(1px) scale(.985)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.small{padding:5px 12px;font-size:13px;border-radius:999px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+@media (hover:hover){
+  .btn:not(:disabled):hover{box-shadow:0 6px 14px -6px rgba(20,33,61,.5);transform:translateY(-1px)}
+  .btn.ghost:not(:disabled):hover{background:var(--paper-2);border-color:var(--ink);box-shadow:none}
+}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--paper-2);border:1px solid var(--line-2);border-radius:10px;padding:11px 14px;width:100%;min-height:46px;transition:border-color .15s,background-color .15s}
+input::placeholder{color:var(--muted);opacity:.75}
+select{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+@media (hover:hover){select:hover,input[type=text]:hover{border-color:var(--ink)}}
+input[type=text]:focus,select:focus{background-color:var(--paper);border-color:var(--a)}
+/* join */
+.join{position:relative;max-width:460px;width:100%;margin:5vh auto 0;display:flex;flex-direction:column;gap:14px;padding:28px 26px 24px;overflow:hidden;
+  border-top:6px solid var(--ink)}
+.join::after{content:"결재\A대기";white-space:pre;position:absolute;top:22px;right:20px;transform:rotate(11deg);text-align:center;line-height:1.15;
+  border:3px solid var(--stamp);color:var(--stamp);border-radius:8px;padding:4px 9px;font-family:var(--font-display);font-size:15px;opacity:.55;pointer-events:none;
+  outline:1.5px solid var(--stamp);outline-offset:2px}
+.join .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
+.join h2{font-size:42px;line-height:1.12;margin-top:-6px;padding-right:76px}
+.join h2 .hl{color:var(--stamp);background:linear-gradient(transparent 62%,var(--stamp-soft) 62%)}
+.join p{margin:0;color:var(--muted)}
+.how{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;font-weight:700;color:var(--muted)}
+.how span{padding:3px 10px;border:1px dashed var(--line-2);border-radius:999px;background:var(--paper-2)}
+.how span:nth-child(1){color:var(--a)} .how span:nth-child(2){color:var(--stamp)} .how span:nth-child(3){color:var(--b)}
+.join .row{margin-top:2px}
+.join .row .btn{padding:13px 18px;font-size:16px}
+.join .row .btn[type=submit]{flex:1.4 1 0}
+.join .row .btn#make{flex:1 1 0}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1 1 auto}
+.err{color:var(--stamp);font-size:13px;font-weight:500;min-height:1.2em}
+.err:not(:empty){background:var(--stamp-soft);padding:8px 12px;border-radius:8px}
+/* players */
+.metaline{font-size:13px;color:var(--muted);display:flex;gap:6px 8px;flex-wrap:wrap}
+.metaline span{padding:2px 12px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pl{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--r);border:2px solid var(--line);background:var(--paper);min-width:0;box-shadow:var(--shadow)}
+.pl.A{border-color:var(--a);background:linear-gradient(100deg,var(--a-soft),var(--paper) 62%)}
+.pl.B{border-color:var(--b);background:linear-gradient(100deg,var(--b-soft),var(--paper) 62%)}
+.tag{flex:none;width:38px;height:38px;border-radius:8px;display:grid;place-items:center;font-family:var(--font-display);font-size:21px;color:var(--on-a);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.A .tag{background:var(--a)} .B .tag{background:var(--b);color:var(--on-b)}
+.pl .nm{font-weight:700;overflow-wrap:anywhere;line-height:1.35}
+.pl .st{font-size:12.5px;color:var(--muted);line-height:1.4}
+.pl .pct{margin-left:auto;padding-left:8px;font-family:var(--font-display);font-size:30px;line-height:1}
+.A .pct{color:var(--a)} .B .pct{color:var(--b)}
+.me-mark{font-size:11px;background:var(--ink);color:var(--bg);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;font-weight:500}
+/* main */
+.tabs{display:none;gap:4px;padding:4px;border-radius:12px;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);position:sticky;top:8px;z-index:6}
+.tabs button{flex:1;position:relative;padding:10px;border:0;background:transparent;border-radius:9px;font-weight:700;color:var(--muted);transition:background-color .15s,color .15s}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.dot{position:absolute;top:8px;right:calc(50% - 38px);width:10px;height:10px;border-radius:50%;background:var(--stamp);box-shadow:0 0 0 2px var(--paper);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 2px var(--paper),0 0 0 2px var(--stamp)}70%{box-shadow:0 0 0 2px var(--paper),0 0 0 8px transparent}100%{box-shadow:0 0 0 2px var(--paper),0 0 0 8px transparent}}
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+.test{display:flex;flex-direction:column;gap:14px;min-height:420px;position:relative;transition:border-color .2s}
+.test:has(.phase.g){border-color:var(--stamp);box-shadow:var(--shadow),0 0 0 3px var(--stamp-soft)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);border-radius:4px;transition:width .25s}
+.vs{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper-2)}
+.vs-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:13px}
+.vs-p{display:flex;align-items:baseline;gap:6px;min-width:0}
+.vs-n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:var(--muted)}
+.vs-p b{display:inline-block;font-family:var(--font-display);font-weight:400;font-size:18px;font-variant-numeric:tabular-nums}
+.vs-p.A b{color:var(--a)} .vs-p.B b{color:var(--b)}
+.vs-mid{flex:none;font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--muted)}
+.vs-bar{position:relative;display:flex;height:10px;border-radius:5px;background:var(--line);margin:4px 0 2px}
+.vs-bar i{display:block;height:100%}
+.vs-bar .a{width:var(--to);background:linear-gradient(90deg,color-mix(in srgb,var(--a) 70%,transparent),var(--a));border-radius:5px 0 0 5px}
+.vs-bar .b{flex:1;background:linear-gradient(270deg,color-mix(in srgb,var(--b) 70%,transparent),var(--b));border-radius:0 5px 5px 0}
+.vs-bar::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line-2);opacity:.7}
+.vs-bar .knob{position:absolute;top:50%;left:var(--to);width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--paper);border:3px solid var(--kc,var(--ink));box-shadow:0 2px 6px rgba(20,33,61,.3);transition:border-color .3s}
+.vs.fresh .vs-bar .knob{animation:vs-k .8s cubic-bezier(.34,1.56,.64,1) both,vs-b .5s .5s ease-out}
+.vs.fresh .vs-bar .knob::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid var(--kc);opacity:0;animation:vs-ring .8s .2s ease-out}
+.vs.fresh .vs-bar .a{animation:vs-a .8s cubic-bezier(.34,1.3,.64,1) both}
+.vs-p.lead b{text-shadow:0 0 14px color-mix(in srgb,currentColor 45%,transparent)}
+.vs.fresh .vs-p.lead b{animation:vs-pop .45s .15s ease-out}
+.vs.fresh .vs-note{animation:vs-in .4s ease-out both}
+.vs.flip{border-color:var(--stamp);animation:vs-shake .45s}
+.vs.flip .vs-note{color:var(--stamp)}
+@keyframes vs-ring{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(2.4)}}
+@keyframes vs-pop{40%{transform:scale(1.28)}}
+@keyframes vs-in{from{opacity:0;transform:translateY(5px)}}
+@keyframes vs-shake{20%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(1px)}}
+@keyframes vs-a{from{width:var(--from)}}
+@keyframes vs-k{from{left:var(--from)}}
+@keyframes vs-b{40%{transform:scale(1.25)}}
+.vs-bar.fog{background:none;overflow:hidden;border-radius:5px}
+.vs-bar.fog::after{display:none}
+.vs-bar.fog i{width:100%;border-radius:5px;background:linear-gradient(100deg,var(--line) 30%,var(--line-2) 50%,var(--line) 70%);background-size:220% 100%;animation:vs-fog 2.2s linear infinite}
+@keyframes vs-fog{from{background-position:120% 0}to{background-position:-120% 0}}
+.vs-note{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.4}
+.qno{font-size:12px;color:var(--muted);letter-spacing:.08em;font-weight:500;margin-bottom:6px}
+.qno:last-child{margin-bottom:0}
+.q{font-family:var(--font-display);font-size:24px;line-height:1.35;overflow-wrap:anywhere;word-break:keep-all;text-wrap:pretty}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:flex-start;gap:12px;text-align:left;padding:12px 14px;min-height:50px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper-2);
+  line-height:1.45;overflow-wrap:anywhere;transition:border-color .15s,background-color .15s,transform .12s,box-shadow .15s}
+.opt .k{flex:none;width:26px;height:26px;margin-top:-1px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--paper);border:1px solid var(--line-2);color:var(--muted);transition:background-color .15s,color .15s,border-color .15s}
+.opt .t{flex:1;min-width:0}
+.opt:active:not(:disabled){transform:scale(.985)}
+@media (hover:hover){
+  .opt:hover:not(:disabled){border-color:var(--ink);background:var(--paper);box-shadow:0 4px 12px -8px rgba(20,33,61,.5);transform:translateX(3px)}
+  .opt:hover:not(:disabled) .k{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+}
+.opt:has(.tagme){border-style:dashed;border-color:var(--ink);background:var(--paper)}
+.phase{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:13px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--ink);color:var(--bg)}
+.phase.g{background:var(--stamp);color:var(--on-stamp)}
+.pick{font-size:13px;color:var(--muted)}
+.intro{display:flex;flex-direction:column;gap:14px}
+.intro h2{font-size:30px;line-height:1.25}
+.intro p{margin:0;color:var(--muted)}
+.sl{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;padding:12px 14px;border:1.5px dashed var(--line-2);border-radius:10px;background:var(--paper-2)}
+.sl label{color:var(--ink);font-weight:700}
+.sl input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--ink);height:28px;margin:0;cursor:pointer}
+.sl output{font-family:var(--font-display);font-size:26px;line-height:1;font-variant-numeric:tabular-nums;color:var(--stamp)}
+.sl input[type=range]{display:none}
+.pv-grid{display:grid;grid-column:1/-1;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.pv-grid button{min-height:40px;border:1.5px solid var(--line-2);border-radius:9px;background:var(--paper);color:var(--ink);font:inherit;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;padding:0}
+.pv-grid button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.intro .row .btn{padding:13px 18px}
+.intro #start{flex:1.4 1 0;font-size:16px} .intro #startSkip{flex:1 1 0}
+.result{display:flex;flex-direction:column;gap:14px}
+.result h2{line-height:1.25}
+.cert{position:relative;border:2px solid var(--ink);border-radius:var(--r);padding:20px 20px 18px;display:flex;flex-direction:column;gap:8px;background:var(--paper);
+  box-shadow:inset 0 0 0 6px var(--paper),inset 0 0 0 7px var(--line-2),var(--shadow);overflow:hidden}
+.cert .qno{text-align:center;letter-spacing:.2em;font-weight:700;margin:2px 0 0}
+.cert .type{font-weight:700;color:var(--muted);text-align:center;font-size:14px}
+.cert:has(.stamp.slam){animation:thud .45s calc(.5s - var(--el,0s)) both}
+@keyframes thud{0%{transform:none}30%{transform:translate(2px,3px) scale(.995)}60%{transform:translate(-2px,-1px)}100%{transform:none}}
+.stamp{position:relative;align-self:center;margin:10px 0 4px;border:4px solid var(--stamp);outline:2px solid var(--stamp);outline-offset:3px;color:var(--stamp);border-radius:12px;padding:8px 20px;
+  font-family:var(--font-display);font-size:28px;line-height:1.2;text-align:center;transform:rotate(-3deg);background:var(--stamp-soft);overflow-wrap:anywhere;text-wrap:balance}
+.stamp.slam{animation:slam .55s calc(0s - var(--el,0s)) cubic-bezier(.2,1.4,.4,1) both}
+.stamp.slam::after{content:"";position:absolute;inset:-6px;border-radius:16px;border:3px solid var(--stamp);opacity:0;animation:ring .7s calc(.45s - var(--el,0s)) ease-out both}
+@keyframes slam{0%{transform:rotate(-12deg) scale(2.6);opacity:0}70%{opacity:1}100%{transform:rotate(-3deg) scale(1);opacity:1}}
+@keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.35,1.7);opacity:0}}
+.big{font-family:var(--font-display);font-size:68px;line-height:1;text-align:center;margin-top:4px;font-variant-numeric:tabular-nums}
+.big small{font-size:26px;margin-left:2px;color:var(--muted)}
+.cert:has(.stamp.slam) .big{animation:pop .5s calc(.6s - var(--el,0s)) cubic-bezier(.2,1.5,.4,1) both}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:none;opacity:1}}
+.cert .pick{text-align:center}
+.oneliner{font-weight:700;text-align:center;font-size:16px;text-wrap:balance}
+.desc{font-size:14px;color:var(--muted);text-align:center;text-wrap:pretty}
+.cd{display:grid;place-items:center;width:170px;height:170px;margin:12px auto;border:6px solid var(--stamp);border-radius:50%;font-family:var(--font-display);font-size:104px;line-height:1;
+  color:var(--stamp);background:var(--stamp-soft);animation:tick 1s ease-out both}
+@keyframes tick{0%{transform:scale(1.5);opacity:0}25%{opacity:1}100%{transform:scale(1)}}
+.center{text-align:center;color:var(--muted);font-weight:700;margin-top:auto}
+.test .center+.cd{margin-bottom:auto}
+.cmp{display:flex;flex-direction:column;gap:12px;padding-top:14px;border-top:1.5px dashed var(--line-2)}
+.cmp h3{font-size:20px}
+.cb{display:flex;flex-direction:column;gap:5px}
+.cbh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.cbh .nm{font-weight:700;overflow-wrap:anywhere}
+.cbh .v{font-family:var(--font-display);font-size:24px;line-height:1}
+.cb.A .v{color:var(--a)} .cb.B .v{color:var(--b)}
+.cbt{font-size:12.5px;color:var(--muted);margin-top:-2px}
+.cmp .bar{height:18px;border-radius:9px;background:var(--paper-2);border:1px solid var(--line)}
+.cmp .bar i{border-radius:9px;transform-origin:left}
+.play .cmp .bar i{animation:grow .9s calc(.7s - var(--el,0s)) cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.cmp .A i{background:var(--a)} .cmp .B i{background:var(--b)}
+.winner{font-family:var(--font-display);font-size:19px;line-height:1.35;text-align:center;padding:14px 16px;border-radius:var(--r);background:var(--ink);color:var(--bg);text-wrap:balance;overflow-wrap:anywhere;box-shadow:var(--shadow)}
+.awards{display:flex;flex-direction:column;gap:10px;counter-reset:aw}
+.awards::before{content:"이번 판 한눈에 보기";font-family:var(--font-display);font-size:19px;line-height:1.2;padding-left:2px}
+.award{position:relative;counter-increment:aw;padding:12px 14px 12px 54px;border-radius:var(--r);background:var(--paper);border:1px solid var(--line);font-size:14px;line-height:1.55;overflow-wrap:anywhere;box-shadow:0 1px 0 rgba(20,33,61,.04)}
+.award::before{content:counter(aw,decimal-leading-zero);position:absolute;left:12px;top:12px;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--paper-2);border:1px solid var(--line-2);color:var(--stamp);font-family:var(--font-display);font-size:13px}
+.award b{display:inline-block;margin-right:6px;padding:1px 10px;border-radius:999px;background:var(--ink);color:var(--bg);font-size:12.5px;line-height:1.6;vertical-align:1px}
+ul.plain{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--paper-2)}
+details[open]{background:var(--paper)}
+summary{cursor:pointer;font-weight:700;list-style-position:inside}
+.hit{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13px;overflow-wrap:anywhere}
+.hit:first-of-type{border-top:0;margin-top:6px}
+.hit span.m{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px}
+.hit span.m.ok{background:var(--b);color:var(--on-b)} .hit span.m.no{background:var(--stamp);color:var(--on-stamp)}
+.ok{color:var(--b)} .no{color:var(--stamp)}
+/* 새 요소: 기다리는 동안 미니 퀴즈, 케미 한 줄, 유형 설명 */
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--b);background:var(--b-soft)} .opt.wrong{border-color:var(--stamp);background:var(--stamp-soft)}
+.opt.right::after,.opt.wrong::after{flex:none;font-weight:700;margin-left:auto}
+.opt.right::after{content:"✓ 정답";color:var(--b)} .opt.wrong::after{content:"✗";color:var(--stamp)}
+.tagme{flex:none;font-size:11px;font-weight:500;background:var(--ink);color:var(--bg);border-radius:999px;padding:1px 9px;margin-left:auto;align-self:center;white-space:nowrap}
+.mini{display:flex;flex-direction:column;gap:10px;padding:14px;border:1.5px dashed var(--line-2);border-radius:var(--r);background:var(--paper-2)}
+.mini .opt{background:var(--paper)}
+.mq-q{font-family:var(--font-display);font-size:19px;line-height:1.35}
+.tip{font-size:13px;color:var(--ink);background:var(--note);border:1px solid var(--note-line);border-radius:8px;padding:9px 12px;transform:rotate(-.4deg)}
+.chem{display:flex;gap:12px;align-items:center;padding:16px 18px;border-radius:var(--r);background:linear-gradient(120deg,var(--stamp-soft),var(--paper) 75%);border:1px solid color-mix(in srgb,var(--stamp) 35%,transparent);font-weight:700;font-size:15px;line-height:1.5;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere}
+.oneliner,.desc,.award,.winner,.sys,.mq-q,.opt .t,.hit>span:last-child{word-break:keep-all;overflow-wrap:anywhere}
+/* Black Han Sans는 작은 글자(약 24px 미만)에서 획이 뭉개져서, 작은 제목은 Noto Sans KR 굵은체로 */
+.winner,.awards::before,.cmp h3,.chat h3,.mq-q{font-family:'Noto Sans KR',sans-serif;font-weight:900;letter-spacing:-.01em}
+.chem .hh{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--paper);box-shadow:0 0 0 1px var(--line),0 4px 10px -6px rgba(20,33,61,.4);font-size:22px}
+/* chat */
+.chat{display:flex;flex-direction:column;height:min(680px,80vh);padding:0;overflow:hidden}
+.chat h3{font-size:18px;padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;background:var(--paper-2)}
+.chat h3::before{content:"💬"}
+.log{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+.msg{max-width:86%;display:flex;flex-direction:column;gap:3px}
+.msg .who{font-size:11.5px;color:var(--muted);font-weight:700;padding:0 4px}
+.msg.A .who{color:var(--a)} .msg.B .who{color:var(--b)}
+.msg .bub{padding:9px 13px;border-radius:14px 14px 14px 4px;overflow-wrap:anywhere;white-space:pre-wrap;line-height:1.5}
+.msg.A .bub{background:var(--a-soft);border:1px solid color-mix(in srgb,var(--a) 28%,transparent)}
+.msg.B .bub{background:var(--b-soft);border:1px solid color-mix(in srgb,var(--b) 28%,transparent)}
+.msg.mine{align-self:flex-end;align-items:flex-end}
+.msg.mine .bub{border-radius:14px 14px 4px 14px}
+.warn{font-size:11px;font-weight:700;color:var(--stamp);border:1.5px solid var(--stamp);border-radius:4px;padding:0 7px;transform:rotate(-1.5deg);align-self:flex-start;background:var(--stamp-soft)}
+.mine .warn{align-self:flex-end}
+.acts{display:flex;gap:4px;flex-wrap:wrap}
+.mine .acts{justify-content:flex-end}
+.acts button{border:1px solid var(--line);background:var(--paper-2);border-radius:999px;padding:0 9px;font-size:12px;line-height:24px;min-height:26px;opacity:.8;transition:opacity .15s,background-color .15s,border-color .15s}
+@media (hover:hover){.acts button:hover{opacity:1;border-color:var(--ink);background:var(--paper)}}
+.acts button.on{opacity:1;border-color:var(--ink);background:var(--paper);font-weight:700}
+.acts button.fl{color:var(--stamp)}
+.sys{align-self:center;max-width:94%;font-size:12px;color:var(--muted);background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:3px 14px;text-align:center;overflow-wrap:anywhere}
+.sys.res{color:var(--stamp);background:var(--stamp-soft);border:1.5px dashed var(--stamp);border-radius:12px;font-weight:700;padding:8px 14px}
+.sys.res::before{content:"📋 "}
+.empty{color:var(--muted);text-align:center;margin:auto;font-size:14px}
+.quick{display:flex;gap:6px;padding:10px 18px 2px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line)}
+.quick::-webkit-scrollbar{display:none}
+.quick button{flex:none;border:1px solid var(--line-2);background:var(--paper-2);border-radius:999px;padding:5px 13px;font-size:13px;transition:background-color .15s,border-color .15s,transform .12s}
+.quick button:active{transform:scale(.96)}
+@media (hover:hover){.quick button:hover{border-color:var(--ink);background:var(--paper)}}
+.send{display:flex;gap:8px;padding:12px 18px 16px;border-top:1px solid var(--line)}
+.send input{flex:1;min-width:0;border-radius:999px;padding-inline:16px}
+.send .btn{border-radius:999px;padding-inline:20px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:20;
+  max-width:calc(100vw - 32px);text-align:center;box-shadow:0 10px 24px -8px rgba(0,0,0,.5);animation:toast 2.2s both}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,12px)}8%{opacity:1;transform:translate(-50%,0)}86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,6px)}}
+@media (min-width:821px){.chat{position:sticky;top:16px}}
+@media (max-width:820px){
+  .tabs{display:flex}
+  .main{grid-template-columns:minmax(0,1fr)}
+  .main[data-tab=test] .chat{display:none}
+  .main[data-tab=chat] .test{display:none}
+  .chat{height:72vh;height:72dvh}
+  .big{font-size:56px}
+  .join{margin-top:2vh}
+}
+@media (max-width:480px){
+  body{padding-top:14px}
+  .wrap{gap:12px}
+  .players{gap:8px}
+  .pl{padding:10px;gap:4px 8px;flex-wrap:wrap;align-items:flex-start}
+  .tag{width:30px;height:30px;font-size:17px;border-radius:7px}
+  .pl>div:nth-child(2){flex:1 1 0;min-width:60px}
+  .pl .nm{font-size:14px}
+  .pl .st{font-size:11.5px}
+  .pl .pct{margin-left:auto;padding:0;font-size:24px;flex-basis:100%;text-align:right}
+  .top h1{font-size:25px}
+  .card{padding:16px}
+  .card.chat{padding:0}
+  .join{padding:24px 20px 20px}
+  .join h2{font-size:36px}
+  .q{font-size:21px}
+  .stamp{font-size:24px;padding:7px 14px}
+  .cd{width:150px;height:150px;font-size:90px}
+  .chat h3,.log{padding-inline:14px}
+  .quick{padding-inline:14px} .send{padding-inline:14px}
+}
+@media (max-width:360px){
+  .join::after{display:none}
+  .join h2{padding-right:0}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ============ 여기를 고치면 테스트 내용이 바뀝니다 ============
+   o: [선택지, 꼰대 점수(0~3)]  /  c: 유형 번호(CATS 순서)  /  주제는 PACKS에서 추가·삭제 */
+const CATS = ["모임","시간","소통","훈계","서열"];
+const CATTYPE = ["모임 강제 참석형","시간 감시형","말투 단속반형","라떼 설교형","서열 정리형"];
+const TIERS = [[0,"MZ 인증 신입"],[20,"열린 마음 선배"],[40,"라떼 한 모금"],[60,"라떼는 말이야 회장"],[80,"전설의 꼰대"]];
+const QUICK_PRE = ["너 꼰대네 ㅋㅋ","나는 아닌데?","솔직히 인정","몇 문항 남았어?","라떼는 말이야…","점수 예상 몇 %?"];
+const QUICK_POST = ["결과 충격이다","이건 억울해","재대결 ㄱ?","네 선택 뭐였어? 😏","다음 주제 뭐 할까?","인정할 건 인정"];
+const AUTO = /라떼|나\s?때는|우리\s?때는|내가\s?너만\s?했을|요즘\s?(애들|것들|젊은)|왕년에|다\s?너\s?(위해|잘되라고)|버릇없/;
+const REACTS = ["🔥","🤣","👍","😱"];
+const TYPEINFO = {
+ "자유로운 영혼형":"누가 뭐라 하든 내 갈 길 가는 사람. 후배들이 제일 좋아하는 선배 유형이에요.",
+ "모임 강제 참석형":"'빠지면 정 떨어지지'가 입에 붙은 사람. 단톡방 참석 인원 세기가 취미예요.",
+ "시간 감시형":"남의 퇴근 시계를 대신 봐주는 사람. 칼퇴 장면이 눈에 제일 먼저 들어와요.",
+ "말투 단속반형":"'ㅇㅋ' 두 글자에도 마음이 철렁. 문장부호 하나까지 읽어내는 눈을 가졌어요.",
+ "라떼 설교형":"사람 하나에 라떼 한 잔. 조언은 묻기도 전에 먼저 도착해 있어요.",
+ "서열 정리형":"나이와 학번이 곧 내비게이션. 수저 놓는 순서까지 기억하고 있어요."
+};
+const TIERLINE = ["요즘 감성 그 자체. 후배가 먼저 밥 먹자고 할 사람이에요.","가끔 라떼가 새어 나오지만 금방 주워 담는 유연한 사람이에요.","본인만 모르고 후배들은 이미 아는 라떼 한 모금이에요.","건배사가 3분을 넘기기 시작한 중견 꼰대예요.","라떼 무형문화재 후보. 역사책에 실릴 전설이에요."];
+const TIPS = ["평소 모습 그대로 골라야 더 웃겨요. 솔직하게!","'상대는 뭘 골랐을까'는 평소 말투를 떠올리면 잘 맞아요.","끝난 뒤엔 채팅으로 상대 선택에 시비를 걸어 보세요.","슬라이더 예상이 틀릴수록 결과 공개가 재밌어져요."];
+const SLANG = [
+ {q:"'갓생'은 무슨 뜻일까?",o:["신을 믿는 삶","부지런하고 알찬 삶","갓 지은 밥만 먹는 삶"],a:1,e:"부지런하고 알찬 하루를 사는 것을 말해요."},
+ {q:"'읽씹'은?",o:["읽고 씹어 먹기","읽고 답장 안 하기","읽기·씹기 연습"],a:1,e:"메시지를 읽고도 답하지 않는 것이에요. (꼰대 단골 지적 소재)"},
+ {q:"'점메추'는?",o:["점심 메뉴 추천","점수 매기기 추첨","점 메우기 추가"],a:0,e:"점심 메뉴 추천! 이제 후배에게 먼저 물어볼 차례예요."},
+ {q:"'얼죽아'는?",o:["얼굴 죽이는 아저씨","얼어 죽어도 아이스 아메리카노","얼음 죽 아침식사"],a:1,e:"한겨울에도 아이스 아메리카노를 마시는 사람이에요."},
+ {q:"'낄끼빠빠'는?",o:["낄 때 끼고 빠질 때 빠지기","김밥 끼워 팔기","끼니 빠르게 먹기"],a:0,e:"눈치껏 끼고 눈치껏 빠지라는 뜻이에요."},
+ {q:"'중꺾마'는?",o:["중간에 꺾어 마시기","중국 꺾기 마스터","중요한 것은 꺾이지 않는 마음"],a:2,e:"꺾이지 않는 마음이 중요하다는 뜻이에요."},
+ {q:"'TMI'는?",o:["Too Much Information","Time Management Idea","Tiny Mini Item"],a:0,e:"너무 많은 정보. 라떼 이야기가 대표적이죠."}
+];
+const PACKS = {
+ work:{name:"직장",q:[
+  {c:0,q:"회식 2차를 가자는데 후배가 내일 일찍 일어나야 해서 빠지겠다고 한다.",o:[["알겠다고 하고 잘 들어가라 한 뒤 남은 사람끼리 간다",0],["다음엔 꼭 같이 가자고 한다",1],["후배에게 한 시간만 같이 있자고 한다",2],["택시비는 내가 낼 테니 같이 가자고 한다",3]]},
+  {c:1,q:"후배가 정시에 딱 맞춰 퇴근 인사를 하고 나간다.",o:[["잘 가라고 인사하고 조심히 가라고 한다",0],["일이 끝났는지 슬쩍 확인한다",1],["다른 사람들 눈치를 한번 살핀다",2],["남은 일 도와줄 테니 더 있다 가라고 한다",3]]},
+  {c:0,q:"점심 메뉴를 정할 때 나는?",o:[["각자 먹고 싶은 걸 먹자고 한다",0],["후배들에게 먼저 고르라고 한다",1],["늘 가던 곳으로 가자고 제안한다",2],["내가 아는 맛집으로 데려간다",3]]},
+  {c:2,q:"신입이 메신저로 \"ㅇㅋ\"라고 답장했다.",o:[["빨리 답했네 하고 넘어간다",0],["조금 짧다고 느끼지만 아무 말 안 한다",1],["다음엔 풀어서 써 주면 고맙겠다고 한다",2],["따로 불러 메신저 쓰는 요령을 알려 준다",3]]},
+  {c:4,q:"처음 만난 사람에게 나이를 묻는 건?",o:[["나이는 굳이 묻지 않는다",0],["대화하다 자연스럽게 알게 되면 안다",1],["호칭 정하려고 한 번 물어본다",2],["나이부터 알아야 편하게 말이 나온다",3]]},
+  {c:3,q:"후배가 요즘 일이 힘들다고 털어놓는다.",o:[["힘들었겠다고 하며 들어 준다",0],["비슷한 일이 있었는데 그땐 이랬다고 짧게 말한다",1],["내 신입 때 경험을 길게 들려준다",2],["내 신입 때 얘기를 하며 힘내라고 한다",3]]},
+  {c:4,q:"막내가 회의실 물과 컵 세팅을 안 하고 있다.",o:[["눈에 띄면 내가 그냥 한다",0],["필요한 사람이 각자 챙기게 둔다",1],["막내에게 챙겨 달라고 부탁한다",2],["다음부턴 막내 담당으로 정한다",3]]},
+  {c:1,q:"후배가 연차를 쓰겠다고 한다.",o:[["일정만 확인하고 승인한다",0],["잘 다녀오라고 하고 승인한다",1],["어디 가는지 슬쩍 물어본다",2],["바쁜 시기인지 확인하고 답한다",3]]},
+  {c:3,q:"후배가 모르는 밈이나 신조어를 쓴다.",o:[["무슨 뜻인지 바로 물어본다",0],["나중에 검색해 본다",1],["왜 줄여 쓰는지 웃으며 물어본다",2],["회의 땐 풀어서 써 달라고 부탁한다",3]]},
+  {c:2,q:"간단한 확인인데 후배가 메신저로 물어봤다.",o:[["메신저로 바로 답해 준다",0],["답해 주고 필요하면 나중에 설명한다",1],["짧은 건 와서 물어보라고 한다",2],["얼굴 보고 말하자며 자리로 부른다",3]]},
+  {c:3,q:"후배가 고민이 있어 보이는데 아무 말도 안 한다.",o:[["먼저 묻지 않고 기다린다",0],["밥 먹자고 하고 이야기가 나오면 들어 준다",1],["먼저 말을 걸어 조언을 건넨다",2],["걱정돼서 따로 불러 해결책을 같이 짠다",3]]},
+  {c:4,q:"후배가 나보다 먼저 밥을 먹기 시작했다.",o:[["먼저 먹어도 괜찮다고 생각한다",0],["별생각 없이 같이 먹는다",1],["속으로 한 번 쳐다본다",2],["같이 먹기 시작하자고 말한다",3]]},
+  {c:0,q:"팀 송년회 날짜를 정하는데 후배 한 명이 개인 일정이 있다고 한다.",o:[["후배가 되는 날로 날짜를 다시 맞춰 본다",0],["되는 사람 위주로 하자고 한다",1],["잠깐이라도 얼굴만 비추라고 한다",2],["일정을 한번 조정해 보라고 부탁한다",3]]},
+  {c:1,q:"후배가 출근 시간 딱 5분 전에 도착한다.",o:[["제시간이면 문제없다고 생각한다",0],["조금 아슬아슬해 보인다고 생각한다",1],["10분 전엔 오면 좋겠다고 말한다",2],["15분 전엔 오면 좋겠다고 부탁한다",3]]},
+  {c:2,q:"후배가 급한 보고를 전화 대신 메신저로 남겼다.",o:[["내용만 확인하고 답한다",0],["급하면 전화해도 된다고 말한다",1],["급한 건 전화해 달라고 부탁한다",2],["전화가 더 빠르다며 바로 답한다",3]]},
+  {c:3,q:"후배의 일하는 방식이 내 방식과 다르다.",o:[["결과만 좋으면 괜찮다고 생각한다",0],["궁금해서 이유를 물어본다",1],["내 방식이 더 빠르다고 알려 준다",2],["내 방식으로 다시 해 보자고 한다",3]]},
+  {c:4,q:"후배가 팀장 앞에서 나보다 먼저 의견을 말했다.",o:[["의견이 나와서 좋다고 생각한다",0],["별생각 없이 넘어간다",1],["나중에 조용히 순서를 부탁한다",2],["선배 의견을 먼저 듣자고 한다",3]]},
+  {c:4,q:"회식 자리에서 막내가 상석에 앉으려 한다.",o:[["자리는 상관없다고 생각한다",0],["눈치껏 옆자리로 안내한다",1],["윗자리라고 작게 귀띔한다",2],["자리를 직접 옮겨 준다",3]]},
+  {c:0,q:"후배가 회사 워크숍 대신 개인 휴가를 쓰고 싶다고 한다.",o:[["휴가 계획대로 편하게 쓰라고 한다",0],["워크숍 일정만 알려 준다",1],["한 번쯤은 오라고 권한다",2],["휴가를 워크숍 뒤로 미루자고 한다",3]]},
+  {c:1,q:"후배가 점심시간을 10분 넘겨 돌아왔다.",o:[["그럴 수도 있다고 넘어간다",0],["못 본 척한다",1],["점심시간은 지켜 달라고 말한다",2],["다음엔 정시에 오자고 말한다",3]]},
+  {c:2,q:"후배가 업무 메신저에 이모티콘을 많이 쓴다.",o:[["분위기 좋다고 생각한다",0],["조금 가벼워 보여도 넘어간다",1],["업무 땐 줄이면 좋겠다고 한다",2],["업무 땐 이모티콘을 빼 달라고 한다",3]]},
+  {c:3,q:"후배가 점심시간에 이어폰을 끼고 혼자 쉬고 있다.",o:[["쉬는 시간이니 그대로 둔다",0],["조금 아쉽지만 굳이 말을 걸지는 않는다",1],["같이 먹자고 한 번 말을 건다",2],["혼자 먹지 말라며 같이 가자고 이끈다",3]]},
+  {c:3,q:"후배가 이직 고민을 털어놓는다.",o:[["후배의 선택을 응원한다",0],["이유부터 들어 본다",1],["내 경력 이야기를 들려준다",2],["조금 더 버텨 보라고 설득한다",3]]},
+  {c:4,q:"후배가 선배인 나에게 \"수고하셨습니다\"라고 인사한다.",o:[["고맙다고 받으며 같이 인사한다",0],["별생각 없이 넘어간다",1],["'고생하셨습니다'가 낫다고 귀띔한다",2],["윗분께 쓰는 표현은 따로 알려 준다",3]]}
+ ]},
+ school:{name:"학교·동아리",q:[
+  {c:0,q:"동아리 MT에 후배가 개인 사정으로 못 간다고 한다.",o:[["사정이 있겠지 하고 이해한다",0],["아쉽다며 다음에 보자고 한다",1],["한 번은 와야 친해진다고 권한다",2],["MT도 활동이라 참석을 부탁한다",3]]},
+  {c:1,q:"후배가 수업 때문에 뒤풀이 중간에 먼저 일어난다.",o:[["잘 가라고 인사하고 조심히 가라고 한다",0],["아쉽지만 괜찮다며 보내 준다",1],["한 잔만 하고 가라고 권한다",2],["끝까지 있어 주면 좋겠다고 붙잡는다",3]]},
+  {c:4,q:"1학년이 복도에서 선배인 나를 보고 목례만 하고 지나간다.",o:[["목례로도 충분하다고 생각한다",0],["별로 신경 쓰지 않는다",1],["인사말도 했으면 싶다",2],["불러서 인사법을 알려 준다",3]]},
+  {c:2,q:"후배가 과제 질문을 반말이 섞인 메시지로 보냈다.",o:[["질문 내용만 보고 답해 준다",0],["말투는 걸리지만 답해 준다",1],["존댓말로 보내 달라고 부탁한다",2],["답하면서 말투도 알려 준다",3]]},
+  {c:4,q:"팀플에서 1학년 후배가 내 의견과 다른 의견을 냈다.",o:[["좋은 의견이라며 같이 검토한다",0],["일단 끝까지 들어 본다",1],["내 경험을 근거로 다른 방향을 권한다",2],["내가 책임질 테니 내 방향으로 간다",3]]},
+  {c:3,q:"신입 환영회에서 선배로서 한마디 하게 됐다.",o:[["짧게 환영 인사만 한다",0],["내가 신입 때 느낀 점을 한두 마디 한다",1],["동아리 역사를 소개한다",2],["내 활동 이야기를 길게 들려준다",3]]},
+  {c:4,q:"후배가 나를 \"형/언니\" 대신 이름으로 부른다.",o:[["편한 대로 부르라고 한다",0],["어색하지만 넘어간다",1],["사람들 앞에선 형·언니로 불러 달라고 한다",2],["호칭은 형·언니로 정리하자고 한다",3]]},
+  {c:3,q:"후배가 대학원 대신 취업 준비를 하겠다고 한다.",o:[["후배 선택을 응원한다",0],["이유를 물어보고 들어 준다",1],["내 경험을 들어 대학원을 권해 본다",2],["내가 아는 길로 방향을 잡아 준다",3]]},
+  {c:2,q:"후배가 단톡 공지를 읽고도 답을 하지 않았다.",o:[["바빴나 보다 하고 넘어간다",0],["공지를 한 번 더 올린다",1],["읽었으면 답해 달라고 말한다",2],["확인했는지 따로 물어본다",3]]},
+  {c:0,q:"동아리 뒤풀이에서 술을 못 마신다는 후배가 있다.",o:[["음료수로 건배해도 된다고 한다",0],["한 잔만 하자고 가볍게 권한다",1],["분위기상 한 잔은 받으라고 한다",2],["한 잔만 받으라며 직접 따라 준다",3]]},
+  {c:1,q:"후배가 약속 시간에 5분 늦게 도착했다.",o:[["나도 방금 왔다고 말한다",0],["길이 막혔나 보다 하고 넘어간다",1],["다음엔 5분 먼저 오라고 한다",2],["5분이어도 미리 와 달라고 한다",3]]},
+  {c:3,q:"후배의 과제를 보다가 내 방식과 다른 걸 발견했다.",o:[["그것도 좋은 방법이라고 한다",0],["물어보면 내 방식을 알려 준다",1],["점수에 유리한 쪽으로 고쳐 준다",2],["내 방식이 더 빠르다고 알려 준다",3]]},
+  {c:0,q:"동아리 총회 날짜가 후배의 시험 기간과 겹친다.",o:[["날짜를 조정해 본다",0],["시험이 있으면 빠져도 된다고 한다",1],["잠깐이라도 얼굴은 비추라고 한다",2],["총회라 꼭 와 달라고 부탁한다",3]]},
+  {c:1,q:"후배가 동아리방 청소 당번을 하루 늦게 했다.",o:[["사정이 있었겠지 하고 넘어간다",0],["하루쯤이야 하고 둔다",1],["정해진 날에 해 달라고 말한다",2],["단톡에 다시 공지한다",3]]},
+  {c:2,q:"후배가 인사 없이 질문부터 메시지로 보냈다.",o:[["질문부터 바로 답해 준다",0],["인사가 없어 조금 어색하다",1],["인사하고 질문해 달라고 부탁한다",2],["인사부터 하고 질문하라고 답장한다",3]]},
+  {c:3,q:"후배가 새 동아리 행사를 제안했다.",o:[["재밌겠다며 한번 맡겨 본다",0],["계획부터 들어 본다",1],["예전에 해 봤는데 안 됐다고 한다",2],["해 본 경험으로 다른 안을 낸다",3]]},
+  {c:4,q:"신입 환영회에서 1학년이 선배보다 먼저 자리에 앉았다.",o:[["자리는 자유라고 생각한다",0],["별로 신경 쓰지 않는다",1],["선배가 오면 인사하라고 귀띔한다",2],["선배 먼저 앉히라고 알려 준다",3]]},
+  {c:4,q:"후배가 선배 앞에서 팔짱을 끼고 이야기한다.",o:[["편하게 이야기하면 된다고 생각하며 듣는다",0],["속으로 조금 신경 쓰인다",1],["자세를 조금 바꿔 달라고 부탁한다",2],["선배 앞에선 자세를 바르게 하라고 한다",3]]},
+  {c:0,q:"후배가 동아리 단체 사진 촬영에 못 온다고 한다.",o:[["빠져도 괜찮다고 한다",0],["다음에 같이 찍자고 한다",1],["잠깐이라도 와서 찍자고 한다",2],["단체 사진이라 꼭 와 달라고 한다",3]]},
+  {c:1,q:"후배가 회의 시작 시간에 딱 맞춰 들어온다.",o:[["제시간이면 충분하다고 생각한다",0],["조금 일찍 오면 좋겠다고 생각한다",1],["5분 전에는 오라고 말한다",2],["선배보다 먼저 와 달라고 한다",3]]},
+  {c:2,q:"후배가 단톡에서 내 의견에 \"ㅋㅋ\"라고 반응했다.",o:[["웃긴 의견이었나 보다 한다",0],["조금 신경 쓰이지만 넘어간다",1],["정중하게 반응해 달라고 부탁한다",2],["ㅋㅋ 대신 말로 답해 달라고 한다",3]]},
+  {c:3,q:"후배가 시험 기간에 동아리 활동을 줄이겠다고 한다.",o:[["공부가 먼저라고 응원한다",0],["시험 끝나고 보자고 한다",1],["활동도 학점도 챙기라고 말한다",2],["나는 둘 다 했다며 경험을 들려준다",3]]},
+  {c:3,q:"후배가 졸업한 선배들 이야기에 별 반응이 없다.",o:[["그럴 수 있다고 생각한다",0],["이야기를 짧게 줄인다",1],["동아리 전통은 알아 두면 좋다고 한다",2],["도움 되니 들어 보라고 한다",3]]},
+  {c:4,q:"후배가 선배와 같은 테이블에서 휴대폰만 보고 있다.",o:[["각자 하고 싶은 걸 하는 시간이라 둔다",0],["조금 섭섭하다",1],["같이 이야기하자고 권한다",2],["같이 있을 땐 폰을 내려놓자고 한다",3]]}
+ ]},
+ family:{name:"가족·명절",q:[
+  {c:1,q:"명절에 조카가 점심만 먹고 일찍 집에 가겠다고 한다.",o:[["조심히 가라고 배웅한다",0],["하루 더 있다 가면 좋겠다고 말한다",1],["벌써 가냐며 서운하다고 말한다",2],["저녁까지 먹고 가라고 붙잡는다",3]]},
+  {c:0,q:"친척 모임에 사촌이 일이 있어 못 온다고 한다.",o:[["일이 먼저니 이해한다고 말한다",0],["잠깐이라도 들르라고 권한다",1],["가족 행사는 챙기자고 말한다",2],["꼭 보고 싶다고 따로 연락한다",3]]},
+  {c:4,q:"아이가 어른에게 \"안녕\" 하고 반말로 인사했다.",o:[["귀엽다고 웃으며 같이 인사해 준다",0],["별말 없이 그냥 지나간다",1],["부모에게 가르쳐 달라고 부탁한다",2],["그 자리에서 존댓말을 알려 준다",3]]},
+  {c:2,q:"전화를 받은 자녀가 \"왜요?\"라고 퉁명스럽게 말한다.",o:[["바쁜가 보다 하고 용건만 말한다",0],["서운하지만 말하지 않는다",1],["말투를 부드럽게 해 달라고 한다",2],["다음부턴 공손하게 받으라고 한다",3]]},
+  {c:3,q:"명절 상에 모인 조카·사촌과 근황 이야기를 한다.",o:[["요즘 뭐가 재밌냐고 묻는다",0],["일은 잘 되냐고 가볍게 묻는다",1],["취업·결혼 계획을 슬쩍 물어본다",2],["걱정돼서 계획을 자세히 물어본다",3]]},
+  {c:4,q:"술자리에서 어린 가족이 어른의 잔을 한 손으로 받는다.",o:[["별로 신경 쓰지 않는다",0],["속으로 한 번 쳐다본다",1],["다음엔 두 손으로 받으라고 귀띔한다",2],["두 손으로 받는 법을 알려 준다",3]]},
+  {c:3,q:"조카가 최신 휴대폰을 사 달라고 한다.",o:[["필요하다고 하면 사 준다",0],["이유를 듣고 같이 정한다",1],["내 어릴 땐 없이도 잘 컸다고 말한다",2],["아껴 쓰라 하며 일단 미룬다",3]]},
+  {c:2,q:"자녀가 1주일째 연락이 없다.",o:[["바쁜가 보다 하고 기다린다",0],["안부 메시지를 한 번 보낸다",1],["연락 좀 하라고 전화를 건다",2],["걱정돼서 다시 전화한다",3]]},
+  {c:4,q:"명절 설거지를 할 때 누가 해야 한다고 생각하나?",o:[["손 빈 사람이 같이 한다",0],["돌아가며 하자고 한다",1],["젊은 사람이 하면 좋겠다고 생각한다",2],["오늘은 막내에게 부탁한다",3]]},
+  {c:0,q:"차례나 제사 참석을 놓고 가족 중 누가 불참 의사를 밝혔다.",o:[["사정이 있겠지 하고 이해한다",0],["아쉽지만 다음에 보자고 한다",1],["집안 행사는 참석하자고 말한다",2],["이번만은 꼭 와 달라고 부탁한다",3]]},
+  {c:1,q:"방학인데 조카가 점심때까지 자고 있다.",o:[["쉬는 날엔 푹 자게 둔다",0],["깨우지 않고 밥만 챙겨 둔다",1],["해가 높다며 슬슬 깨운다",2],["하루가 아깝다며 깨운다",3]]},
+  {c:3,q:"조카의 용돈 쓰임새나 성적표가 궁금해졌다.",o:[["묻지 않고 용돈만 준다",0],["근황만 슬쩍 물어본다",1],["성적은 어땠냐고 물어본다",2],["성적표를 보여 달라고 한다",3]]},
+  {c:0,q:"가족 여행 날짜에 자녀가 중요한 일정이 있다고 한다.",o:[["후배가 되는 날로 날짜를 다시 맞춰 본다",0],["일정 끝나면 따로 가자고 한다",1],["일정을 미루고 같이 가자고 권한다",2],["일정을 빼 보라고 한다",3]]},
+  {c:1,q:"자녀가 귀가 시간이 조금 늦었다.",o:[["잘 들어왔으면 됐다고 한다",0],["연락만 해 달라고 말한다",1],["몇 시까지 오라고 했냐고 묻는다",2],["기다렸다가 이유를 묻는다",3]]},
+  {c:2,q:"조카가 가족 모임 사진을 SNS에 올렸다.",o:[["예쁘게 나왔다며 좋아한다",0],["말없이 넘어간다",1],["올리기 전에 한마디 해 달라고 한다",2],["다음엔 가족에게 묻고 올리라고 한다",3]]},
+  {c:3,q:"자녀가 첫 월급을 저축 대신 여행에 썼다고 한다.",o:[["즐거웠으면 됐다며 다음 여행도 응원한다",0],["잘 다녀왔냐고 물어본다",1],["저축부터 해 두라고 권한다",2],["내 첫 월급 쓴 이야기를 들려준다",3]]},
+  {c:4,q:"조카가 친척 어른에게 인사말 대신 손만 흔든다.",o:[["귀엽다고 웃으며 손 흔들어 준다",0],["별말 없이 넘어간다",1],["다음엔 말로 인사하면 좋겠다고 한다",2],["인사법을 알려 주며 다시 시킨다",3]]},
+  {c:4,q:"명절에 막내 사촌이 어른이 보던 TV 채널을 바꾼다.",o:[["같이 볼 걸 고르자고 한다",0],["그러려니 하고 둔다",1],["어른이 보던 건 끝까지 보자고 한다",2],["보던 프로를 끝까지 보게 한다",3]]},
+  {c:0,q:"추석 연휴에 친구와 약속이 있어 일찍 가겠다는 자녀가 있다.",o:[["재밌게 놀다 오라고 한다",0],["점심은 같이 먹자고 한다",1],["명절엔 가족과 보내자고 권한다",2],["친구는 다음에 만나라고 한다",3]]},
+  {c:1,q:"조카가 식사 시간에 10분 늦게 나타난다.",o:[["괜찮다며 자리를 만들어 준다",0],["따로 밥을 챙겨 둔다",1],["식사 시간은 지켜 달라고 말한다",2],["다 같이 기다렸다고 말한다",3]]},
+  {c:2,q:"문자를 보냈더니 자녀가 \"나중에요\"라고만 답한다.",o:[["바쁘구나 하고 기다린다",0],["서운하지만 말하지 않는다",1],["답을 정확히 해 달라고 말한다",2],["나중이 언제냐고 바로 되묻는다",3]]},
+  {c:3,q:"자녀가 직장을 옮기겠다고 한다.",o:[["본인 결정을 존중한다",0],["이유를 들어 본다",1],["걱정된다며 신중하라고 한다",2],["조금만 더 다녀 보라고 말린다",3]]},
+  {c:3,q:"조카가 새로 시작한 취미를 이야기한다.",o:[["재밌겠다며 들어 준다",0],["어떤 취미인지 물어본다",1],["지장 없게 하라고 당부한다",2],["할 일부터 하라고 한마디 한다",3]]},
+  {c:4,q:"사촌 동생이 나에게 반말로 이야기한다.",o:[["친하니까 괜찮다고 생각한다",0],["조금 거슬리지만 넘어간다",1],["존댓말을 써 달라고 부탁한다",2],["예의를 갖춰 말하라고 한다",3]]}
+ ]}
+};
+/* ================================================================ */
+
+const $app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tierOf = pct => TIERS.filter(t=>pct>=t[0]).pop()[1];
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const ssGet=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}};
+const ssSet=(k,v)=>{try{sessionStorage.setItem(k,v)}catch(e){}};
+
+/* ============ 통신 계층 (서버 연동) ============
+   server.js의 /api 로 방 데이터를 주고받습니다. 같은 방 코드를 입력하면 다른 기기·브라우저의 친구와 대화할 수 있어요.
+   아래 collection/doc/get/set/update/add/orderBy/limit/onSnapshot 인터페이스는 그대로 유지했습니다. */
+const RemoteDB=(()=>{
+  const subs=new Set(), streams=new Map();
+  const enc=encodeURIComponent;
+  const isObj=v=>v&&typeof v==='object'&&!Array.isArray(v);
+  const merge=(a,b)=>{const o={...a};for(const k in b)o[k]=isObj(b[k])&&isObj(o[k])?merge(o[k],b[k]):b[k];return o};
+  const fire=()=>subs.forEach(f=>f());
+  const api=async(url,body)=>{
+    const r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok) throw Object.assign(new Error(j.error||'http'),{code:j.error||String(r.status)});
+    return j;
+  };
+  const write=async body=>{const j=await api('/api/write',body);fire();return j};
+  const mkDoc=(id,d)=>({id,exists:d!==undefined,data:()=>d===undefined?undefined:JSON.parse(JSON.stringify(d))});
+  const listDocs=async col=>{const j=await api('/api/list?col='+enc(col));return j.docs.map(d=>mkDoc(d.id,d.data))};
+  const snapOf=(docs,q)=>{
+    if(q.f) docs.sort((a,b)=>(a.data()[q.f]>b.data()[q.f]?1:a.data()[q.f]<b.data()[q.f]?-1:(a.id>b.id?1:-1))*(q.dir==='desc'?-1:1));
+    if(q.n) docs=docs.slice(0,q.n);
+    return {docs};
+  };
+  /* 변경 알림(SSE)을 받으면 다시 읽고, 5초마다도 한 번 더 확인 (연결이 끊겨도 따라잡도록) */
+  const listen=(col,load,cb)=>{
+    const room=col.split('/')[1];
+    if(room&&!streams.has(room)){
+      try{const es=new EventSource('/api/events?room='+enc(room));es.onmessage=fire;streams.set(room,es)}catch(e){}
+    }
+    let seq=0;
+    const f=async()=>{const my=++seq;try{const v=await load();if(my===seq)cb(v)}catch(e){}};
+    subs.add(f); setTimeout(f,0);
+    const t=setInterval(f,5000);
+    return()=>{subs.delete(f);clearInterval(t)};
+  };
+  const docRef=(col,id)=>{
+    const get=async()=>{const j=await api(`/api/get?col=${enc(col)}&id=${enc(id)}`);return mkDoc(id,j.exists?j.data:undefined)};
+    return {
+      get,
+      set:async v=>write({op:'set',col,id,data:v}),
+      delete:async()=>write({op:'delete',col,id}),
+      update:async v=>write({op:'update',col,id,data:v}),
+      onSnapshot:cb=>listen(col,get,cb)
+    };
+  };
+  const colRef=(col,q={})=>({
+    doc:id=>docRef(col,id),
+    get:async()=>snapOf(await listDocs(col),q),
+    add:async v=>{const id=Date.now().toString(36)+Math.random().toString(36).slice(2,8);await docRef(col,id).set(v);return docRef(col,id)},
+    orderBy:(f,dir)=>colRef(col,{...q,f,dir}),
+    limit:n=>colRef(col,{...q,n}),
+    onSnapshot:cb=>listen(col,async()=>snapOf(await listDocs(col),q),cb)
+  });
+  return {
+    collection:p=>colRef(p),
+    doc:p=>{const i=p.lastIndexOf('/');return docRef(p.slice(0,i),p.slice(i+1))}
+  };
+})();
+/* 방 코드: 헷갈리는 글자(I, L, O, 0, 1)를 뺀 6자리 */
+const newCode=()=>Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[b%31]).join('');
+/* 탭마다 다른 사용자로 취급 (탭 2개를 열면 2명이 되어 채팅 테스트 가능) */
+const LocalUser={
+  id:async()=>{let v=null;try{v=sessionStorage.getItem('kd-uid')}catch(e){}
+    if(!v){v='u'+Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('kd-uid',v)}catch(e){}}
+    return v},
+  can:async()=>true
+};
+const IS_LOCAL = typeof claude==='undefined';
+
+const S = {db:null,uid:null,name:lsGet('kd-name')||'',room:'',players:[],msgs:[],meta:null,
+  step:0,phase:'pick',pend:0,answers:[],guesses:[],inQuiz:false,gs:50,go:50,shuf:null,
+  tab:'test',unread:false,err:'',lastCount:0,ready:false,subs:[],cd:null,timer:null,seenKey:null,countKey:null,peek:false,
+  skip:false,mq:{i:Math.floor(Math.random()*SLANG.length),a:null,n:0,ok:0},tip:Math.floor(Math.random()*TIPS.length),postedKey:null,lastHtml:null,revealAt:null,detOpen:false,nextPack:null,lastMsgId:null,codeIn:null,packIn:null};
+
+const pack = ()=>PACKS[(S.meta&&PACKS[S.meta.pack]?S.meta.pack:'work')];
+/* ===== 문제 뽑기: 방의 seed로 12문항을 뽑고 순서를 섞음 (두 사람이 같은 seed라서 같은 문제가 나와요) ===== */
+const PICK=12; /* 문제 풀(24개) 중 매번 무작위로 12개만 출제, 나머지는 이번엔 안 나옴 */
+const rng=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+function buildQ(pool,seed){
+  const r=rng(Number(seed)||1), sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  let left=sh(pool).slice(0,PICK); const out=[];
+  while(left.length){const last=out.length?out[out.length-1].c:-1, cand=left.filter(x=>x.c!==last), pick=(cand.length?cand:left)[0]; out.push(pick); left.splice(left.indexOf(pick),1)}
+  return out;
+}
+let _qc={k:null,v:[]};
+const Q = ()=>{const key=S.meta&&PACKS[S.meta.pack]?S.meta.pack:'work', seed=(S.meta&&S.meta.seed)||round(), k=key+':'+seed; if(_qc.k!==k) _qc={k,v:buildQ(PACKS[key].q,seed)}; return _qc.v};
+const newSeed=()=>Math.floor(Math.random()*1e9)+1;
+const round = ()=>(S.meta&&S.meta.round)||1;
+const maxScore = ()=>Q().length*3;
+const pRound = p=>p.round||1;
+const isDone = p=>!!p&&p.done&&pRound(p)===round();
+
+function toast(t){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function typeOf(scores,pct){
+  if(pct<20) return "자유로운 영혼형";
+  const q=Q(), sum=CATS.map(()=>0), cnt=CATS.map(()=>0);
+  q.forEach((x,i)=>{sum[x.c]+=scores[i]||0;cnt[x.c]++});
+  let best=0,br=-1; CATS.forEach((_,k)=>{const r=cnt[k]?sum[k]/(cnt[k]*3):0; if(r>br){br=r;best=k}});
+  return CATTYPE[best];
+}
+
+async function boot(){
+  render();
+  try{
+    const user = IS_LOCAL ? LocalUser : await claude.use('user');
+    S.db = IS_LOCAL ? RemoteDB : await claude.use('db');
+    S.uid = user ? await user.id() : null;
+    if(user && user.can){ const w = await user.can('data.write'); if(w===false) S.err='읽기 전용 권한이라 참여할 수 없어요. 링크를 공유할 때 "기여자(Contributor)" 권한으로 보내 주세요.'; }
+  }catch(e){}
+  S.ready=true;
+  const saved=lsGet('kd-room'); if(saved && S.name) S.room=saved;
+  render();
+  /* 새로고침해도 같은 방으로 자동 복귀 (이 탭이 직전에 들어가 있던 방만) */
+  const was=ssGet('kd-room');
+  if(S.ready&&S.db&&S.uid&&was&&S.name.trim()){
+    S.room=was;
+    try{const mt=await metaRef().get(); if(mt.exists) await join(was,'work',true); else {S.room=saved||'';render()}}catch(e){S.room='';render()}
+  }
+}
+
+const roomRef = ()=>S.db.collection('rooms/'+S.room+'/players');
+const msgRef = ()=>S.db.collection('rooms/'+S.room+'/msgs');
+const metaRef = ()=>S.db.doc('rooms/'+S.room+'/meta/info');
+const me = ()=>S.players.find(p=>p.id===S.uid);
+const slot = p=>S.players.indexOf(p)===0?'A':'B';
+
+async function join(code,packKey,keep){
+  S.err='';
+  code=code.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+  if(code.length<3){S.err='방 코드는 3~6자의 영문·숫자로 입력해 주세요.';render();return}
+  if(!S.name.trim()){S.err='이름을 입력해 주세요.';render();return}
+  if(maskBad(S.name)!==S.name){S.err='이름에 쓸 수 없는 표현이 들어 있어요. 다른 이름을 써 주세요.';render();return}  /* 비속어 이름은 입장 불가 */
+  S.room=code;
+  try{
+    const snap = await roomRef().get();
+    const act = snap.docs.filter(d=>!d.data().gone);
+    const ids = act.map(d=>d.id);
+    if(ids.length>=2 && !ids.includes(S.uid)){S.err='이미 두 명이 들어와 있는 방이에요. 다른 코드를 써 주세요.';S.room='';render();return}
+    let mt = await metaRef().get();
+    if(!mt.exists){ await metaRef().set({round:1,pack:PACKS[packKey]?packKey:'work',seed:newSeed()}); }
+    const r = mt.exists ? (mt.data().round||1) : 1;
+    let nm=S.name.trim().replace(/\s+/g,' ').slice(0,12);
+    if(act.some(d=>d.id!==S.uid && (d.data().name||'')===nm)) nm=nm.slice(0,11)+'2'; /* 이름이 같으면 구분되게 */
+    const mine = await roomRef().doc(S.uid).get();
+    if(keep&&mine.exists&&!mine.data().gone) nm=mine.data().name||nm; /* 새로고침 복귀 시 기존 이름 유지 */
+    S.name=nm;
+    if(!mine.exists || mine.data().gone){
+      await roomRef().doc(S.uid).set({name:nm,joinedAt:Date.now(),round:r,done:false,progress:0,pct:null,scores:[],guesses:[],hist:{},gone:false});
+      await msgRef().add({type:'sys',text:nm+'님이 입장했어요'+(ids.length?' · 둘이 모였으니 시작해 볼까요?':' · 상대를 기다리는 중'),t:Date.now()});
+    } else if(!keep) await roomRef().doc(S.uid).update({name:nm});
+  }catch(e){S.err='입장하지 못했어요. 잠시 뒤 다시 시도해 주세요. ('+(e.code||'오류')+')';S.room='';render();return}
+  S.name=S.name.trim().replace(/\s+/g,' ').slice(0,12);lsSet('kd-name',S.name); lsSet('kd-room',S.room); ssSet('kd-room',S.room);
+  subscribe();
+}
+
+/* ============ 랜덤 채팅 (혼자 있을 때) ============
+   대기열에 들어가면 서버가 2분 안에 짝을 찾아 새 방 코드를 줍니다. 짝이 정해지면 평소 방과 똑같이 진행돼요. */
+let randPoll=null;
+const rpost=(url,body)=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||String(r.status));return j}));
+const rget=url=>fetch(url).then(r=>r.json().then(j=>{if(!r.ok)throw new Error(j.error||String(r.status));return j}));
+function stopRandom(){clearInterval(randPoll);randPoll=null;S.randomWait=false}
+async function startRandom(pack){
+  S.err='';
+  if(!S.name.trim()){S.err='이름을 입력해 주세요.';render();return}
+  if(maskBad(S.name)!==S.name){S.err='이름에 쓸 수 없는 표현이 들어 있어요. 다른 이름을 써 주세요.';render();return}
+  if(!S.uid){S.err='통신을 시작하지 못했어요. 페이지를 새로고침해 주세요.';render();return}
+  stopRandom(); S.randomWait=true; S.packIn=pack; render();
+  const check=async()=>{
+    try{
+      const j=await rget('/api/random/status?uid='+encodeURIComponent(S.uid));
+      if(j.room){stopRandom(); await join(j.room,pack,false)}
+      else if(j.gone){stopRandom(); S.err='대기 시간이 지나 취소됐어요. 다시 눌러 주세요.'; render()}
+    }catch(e){}
+  };
+  try{
+    const j=await rpost('/api/random/join',{uid:S.uid,pack});
+    if(j.room){stopRandom(); await join(j.room,pack,false); return}
+  }catch(e){stopRandom(); S.err='랜덤 채팅을 시작하지 못했어요. 서버 연결을 확인해 주세요.'; render(); return}
+  randPoll=setInterval(check,1500);
+}
+function cancelRandom(){rpost('/api/random/cancel',{uid:S.uid}).catch(()=>{}); stopRandom(); render()}
+function resetLocal(){
+  clearInterval(S.timer);
+  Object.assign(S,{step:0,phase:'pick',pend:0,answers:[],guesses:[],inQuiz:false,gs:50,go:50,shuf:null,cd:null,seenKey:null,countKey:null,peek:false,skip:false,postedKey:null,revealAt:null,detOpen:false,nextPack:null,vsKey:null,vsShare:null,vsFrom:null,vsLead:0,vsNote:'',vsV:null,vsFromV:null,vsFresh:false,vsFlip:false});
+}
+function bothKey(){
+  if(S.players.length<2) return null;
+  const r=round();
+  return S.players.every(p=>p.done&&pRound(p)===r) ? r+':'+S.players.map(p=>p.doneAt).join('-') : null;
+}
+const revealed = ()=>{const k=bothKey();return !!k&&S.seenKey===k};
+function checkReveal(){
+  const k=bothKey(); if(!k||S.seenKey===k||S.countKey===k) return;
+  S.countKey=k;S.cd=3;clearInterval(S.timer);
+  S.timer=setInterval(()=>{S.cd--;if(S.cd<=0){clearInterval(S.timer);S.cd=null;S.seenKey=k;S.revealAt=Date.now();postReveal(k)}render()},1000);
+}
+
+/* 상대가 보낸 값은 믿지 않고 숫자·문자 형태로 정리한 뒤 화면에 쓴다 */
+const num=v=>v==null||v===''?null:(Number.isFinite(+v)?Math.round(+v):0);
+const numArr=a=>Array.isArray(a)?a.map(v=>num(v)):[];
+function cleanPlayer(p){
+  p.name=maskBad(String(p.name==null?'':p.name)); p.pct=num(p.pct); p.guessSelf=num(p.guessSelf); p.guessOther=num(p.guessOther);
+  p.progress=num(p.progress)||0; p.round=num(p.round)||1; p.doneAt=num(p.doneAt);
+  p.scores=numArr(p.scores); p.guesses=numArr(p.guesses); p.joinedAt=num(p.joinedAt)||0;
+  if(!p.hist||typeof p.hist!=='object') p.hist={}; else for(const k in p.hist) p.hist[k]=num(p.hist[k]);
+  return p;
+}
+function subscribe(){
+  S.subs.forEach(u=>u());S.subs=[];
+  S.subs.push(metaRef().onSnapshot(s=>{
+    if(!s.exists) return;
+    const nm=s.data(), changed=S.meta && (nm.round||1)!==round();
+    S.meta=nm;
+    if(changed){
+      resetLocal();
+      roomRef().doc(S.uid).update({round:round(),done:false,progress:0,pct:null,scores:[],guesses:[],guessSelf:null,guessOther:null,doneAt:null}).catch(()=>{});
+      toast(round()+'회차 시작! 주제: '+pack().name);
+    }
+    render();
+  },e=>{S.err='연결이 끊겼어요 ('+e.code+')';render()}));
+  S.subs.push(roomRef().onSnapshot(s=>{
+    S.players=s.docs.map(d=>cleanPlayer({id:d.id,...d.data()})).filter(p=>!p.gone).sort((a,b)=>a.joinedAt-b.joinedAt);
+    const m=me(); if(m && isDone(m) && S.step<Q().length){S.step=Q().length;S.answers=m.scores||[];S.guesses=m.guesses||[]}
+    /* 새로고침 등으로 풀이 도중 끊겼으면 저장해 둔 지점부터 이어서 */
+    else if(m && !isDone(m) && !S.inQuiz && S.step===0 && pRound(m)===round() && m.progress>0 && (m.scores||[]).length===m.progress && m.progress<Q().length){
+      S.answers=m.scores.slice();S.guesses=(m.guesses||[]).slice();S.step=m.progress;S.phase='pick';S.inQuiz=true;S.shuf=Q().map(q=>shuffle(q.o));
+      if(m.guessSelf!=null)S.gs=m.guessSelf; if(m.guessOther!=null)S.go=m.guessOther; toast('이어서 풀어요 ('+m.progress+'/'+Q().length+')');
+    }
+    checkReveal();
+    render();
+  },e=>{S.err='연결이 끊겼어요 ('+e.code+')';render()}));
+  S.subs.push(msgRef().orderBy('t','desc').limit(200).onSnapshot(s=>{
+    S.msgs=s.docs.map(d=>({id:d.id,...d.data()})).reverse(); /* 최신 200개를 시간순으로 */
+    const last=S.msgs[S.msgs.length-1];
+    if(last && S.lastMsgId && last.id!==S.lastMsgId && S.tab!=='chat' && last.uid!==S.uid) S.unread=true;
+    S.lastMsgId=last?last.id:S.lastMsgId;
+    render();
+  },e=>{S.err='채팅 연결이 끊겼어요 ('+e.code+')';render()}));
+}
+
+async function startQuiz(skip){
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  S.shuf=Q().map(q=>shuffle(q.o)); S.step=0;S.phase='pick';S.answers=[];S.guesses=[];S.inQuiz=true;S.skip=!!skip;S.vsKey=null;S.vsShare=null;S.vsFrom=null;S.vsLead=0;S.vsNote='';S.vsV=null;S.vsFromV=null;S.vsFresh=false;S.vsFlip=false;
+  render();
+  try{await roomRef().doc(S.uid).update({guessSelf:skip?null:S.gs,guessOther:skip?null:S.go,progress:0,round:round(),done:false})}catch(e){toast('저장하지 못했어요')}
+}
+function pickMine(score){
+  S.pend=score;
+  /* 상대가 없으면 상대 선택 맞히기는 건너뛰고 바로 다음 문항 */
+  if(!S.players.some(p=>p.id!==S.uid)){pickGuess(null);return}
+  S.phase='guess';render();
+}
+/* 이전 버튼: 맞히기 단계면 같은 문항의 '내 선택'으로, 내 선택 단계면 직전 문항으로 되돌아가요 */
+async function goBack(){
+  if(S.phase==='guess'){S.phase='pick';render();return}
+  if(S.step<=0) return;
+  S.answers.pop();S.guesses.pop();S.step--;S.phase='pick';
+  render();
+  try{await roomRef().doc(S.uid).update({progress:S.step,scores:S.answers,guesses:S.guesses})}catch(e){toast('저장하지 못했어요')}
+}
+async function pickGuess(g){
+  S.answers.push(S.pend);S.guesses.push(g);S.step++;S.phase='pick';
+  render();
+  const n=Q().length;
+  try{
+    if(S.step>=n){
+      const pct=Math.round(S.answers.reduce((a,b)=>a+b,0)/maxScore()*100), r=round();
+      await roomRef().doc(S.uid).update({done:true,progress:S.step,pct,scores:S.answers,guesses:S.guesses,doneAt:Date.now(),round:r,hist:{[r]:pct}});
+      await msgRef().add({type:'result',text:S.name+'님이 테스트를 끝냈어요. 결과는 둘 다 끝나면 공개돼요',t:Date.now()});
+    } else {
+      if(S.step===Math.floor(n/2)) toast('절반 왔어요! 🔥');
+      else if(S.step===n-1) toast('마지막 문항이에요');
+      await roomRef().doc(S.uid).update({progress:S.step,scores:S.answers,guesses:S.guesses});
+    }
+  }catch(e){toast('저장하지 못했어요')}
+}
+async function nextRound(packKey){
+  const from=round(); /* 두 사람이 동시에 눌러도 한 라운드만 오르도록: 눌렀을 때의 라운드가 그대로일 때만 올림 */
+  try{const cur=await metaRef().get(); if(cur.exists&&(cur.data().round||1)!==from) return; await metaRef().update({round:from+1,pack:PACKS[packKey]?packKey:'work',seed:newSeed()})}catch(e){toast('시작하지 못했어요')}
+}
+/* ============ 비속어 필터 ============
+   욕설·패드립·성희롱·혐오 표현은 채팅에서 ***로 가려져요. 단어는 BAD_WORDS에서 추가/삭제하세요.
+   (일반 단어를 잘못 가리지 않도록 '읽씹', '시발점' 같은 말은 일부러 목록에서 뺐어요) */
+const BAD_WORDS = [
+ /* 욕설 */ "시발","씨발","씨바","씨팔","시팔","ㅅㅂ","ㅆㅂ","병신","븅신","ㅂㅅ","지랄","ㅈㄹ","좆","존나","개새끼","개색기","쌔끼","씹새","씹년","씹놈","씹할","씹창","썅","쌍년","쌍놈","미친놈","미친년",
+ /* 패드립 */ "느금마","느금","니애미","느그엄마","느그애비","니애비","애미뒤","엠창","앰창","니어미",
+ /* 성희롱 */ "섹스","섹드립","야동","자위행위","강간","따먹","창녀","창년",
+ /* 혐오 */ "틀딱","한남충","김치녀","된장녀","맘충","급식충","정박아",
+ /* 일베식 지역·역사 비하 */ "전라디언","홍어족","홍어새끼","광주폭동","518폭동",
+ /* 일베식 정치인·고인 비하 */ "노알라","운지천","슨상님","문재앙",
+ /* 일베식 여성 비하 */ "삼일한","보슬아치",
+ /* 외국인·인종·종교 비하 */ "짱깨","짱께","쪽바리","쪽발이","조센징","똥남아","깜둥이","개슬람","개독",
+ /* 기타 일베 은어 */ "앙기모띠","일베충",
+ /* 추가 */ "너임마청년",
+ /* 영어 */ "fuck","shit","bitch","asshole","bastard","slut","whore","cunt","nigger","porn"
+];
+const BAD_EXCEPT = {"시발":/^[점역]/,"개독":/^감/,"삼일한":/^번/};  /* 일반 단어와 겹치는 경우 예외 ("시발점", "개독감", "삼일 한 번") */
+const BAD_STRICT_L = new Set(["시발","시팔"]);  /* 앞에 한글이 바로 붙으면 일반 단어("출시발표", "동시발생")라서 가리지 않음 */
+function maskBad(text){
+  const s=String(text==null?'':text), low=s.replace(/[A-Z]/g,c=>c.toLowerCase());
+  const idx=[]; let norm='';
+  for(let i=0;i<low.length;i++){ if(/[\p{L}\p{N}]/u.test(low[i])){idx.push(i);norm+=low[i]} }  /* 공백·기호를 뺀 글자만 모아서 찾기 ("시.발", "씨 발"도 잡힘) */
+  const hit=[];
+  for(const w of BAD_WORDS){
+    for(let p=norm.indexOf(w);p>=0;p=norm.indexOf(w,p+1)){
+      if(BAD_EXCEPT[w]&&BAD_EXCEPT[w].test(norm.slice(p+w.length))) continue;
+      const a=idx[p], b=idx[p+w.length-1];
+      if(BAD_STRICT_L.has(w)&&a>0&&/[가-힣]/.test(low[a-1])) continue;
+      if(/\s/.test(low.slice(a,b+1))){  /* 띄어 쓴 경우는 단어 경계가 맞을 때만 ("출시 발표"는 통과). 3글자 이상은 뒤에 조사가 붙어도("개 새끼야") 가림 */
+        const okL=a===0||/\s/.test(low[a-1]), okR=w.length>=3||b===low.length-1||!/[\p{L}\p{N}]/u.test(low[b+1]);
+        if(!(okL&&okR)) continue;
+      }
+      hit.push([a,b]);
+    }
+  }
+  if(!hit.length) return s;
+  hit.sort((x,y)=>x[0]-y[0]);
+  const merged=[];
+  for(const h of hit){const l=merged[merged.length-1]; if(l&&h[0]<=l[1]+1) l[1]=Math.max(l[1],h[1]); else merged.push([h[0],h[1]])}
+  let out='',pos=0;
+  for(const [a,b] of merged){out+=s.slice(pos,a)+'***';pos=b+1}
+  return out+s.slice(pos);
+}
+
+async function say(text){
+  text=text.trim(); if(!text) return;
+  const clean=maskBad(text);
+  if(clean!==text){ text=clean; toast('🚫 비속어는 ***로 가려져요'); }
+  else if(AUTO.test(text)) toast('☕ 라떼 감지! 꼰대 발언 +1');
+  try{await msgRef().add({type:'chat',uid:S.uid,name:S.name,text:text.slice(0,300),t:Date.now()})}catch(e){toast('보내지 못했어요')}
+}
+async function react(id,emoji){
+  const m=S.msgs.find(x=>x.id===id); if(!m) return;
+  const cur=(m.reactions||{})[S.uid];
+  try{await msgRef().doc(id).update({reactions:{[S.uid]:cur===emoji?'':emoji}})}catch(e){toast('반응을 남기지 못했어요')}
+}
+async function flag(id){
+  const m=S.msgs.find(x=>x.id===id); if(!m) return;
+  const cur=!!(m.flags||{})[S.uid];
+  try{await msgRef().doc(id).update({flags:{[S.uid]:!cur}});if(!cur)toast('꼰대 발언으로 신고했어요')}catch(e){toast('신고하지 못했어요')}
+}
+/* 방에 아무도 안 남으면 방 전체(플레이어·채팅·라운드 정보)를 지운다. 서버로 바꿀 때도 doc.delete()만 지원하면 그대로 동작 */
+async function wipeRoom(){
+  const [ps,ms]=await Promise.all([roomRef().get(),msgRef().get()]);
+  await Promise.all([...ps.docs.map(d=>roomRef().doc(d.id).delete()),...ms.docs.map(d=>msgRef().doc(d.id).delete()),metaRef().delete()]);
+}
+async function leave(){
+  try{if(S.db&&S.room&&S.uid){
+    await roomRef().doc(S.uid).update({gone:true});
+    const snap=await roomRef().get();
+    if(snap.docs.every(d=>d.data().gone)) await wipeRoom();   /* 마지막 사람이 나가면 방 삭제 */
+    else await msgRef().add({type:'sys',text:S.name+'님이 나갔어요',t:Date.now()});
+  }}catch(e){}
+  ssSet('kd-room','');
+  S.subs.forEach(u=>u());S.subs=[];resetLocal();Object.assign(S,{room:'',players:[],msgs:[],meta:null,lastMsgId:null,lastHtml:null});lsSet('kd-room','');render()}
+
+/* ---------- 집계 ---------- */
+function kkondaeTalk(uid){
+  return S.msgs.filter(m=>m.type==='chat'&&m.uid===uid&&(AUTO.test(m.text)||Object.values(m.flags||{}).some(Boolean))).length;
+}
+function crowns(){
+  if(S.players.length<2) return null;
+  const [a,b]=S.players; let x=0,y=0;
+  const lim = revealed()?round():round()-1;
+  for(let r=1;r<=lim;r++){
+    const pa=(a.hist||{})[r], pb=(b.hist||{})[r];
+    if(pa==null||pb==null||pa===pb) continue;
+    if(pa>pb) x++; else y++;
+  }
+  return [x,y];
+}
+function hitsOf(p,o){let h=0;(p.guesses||[]).forEach((g,i)=>{if(g===(o.scores||[])[i])h++});return h}
+
+const tierIdx = pct => TIERS.filter(t=>pct>=t[0]).length-1;
+const optText=(q,score)=>(q.o.find(o=>o[1]===score)||['(기록 없음)'])[0];
+function catRates(p){
+  const sum=CATS.map(()=>0), cnt=CATS.map(()=>0);
+  Q().forEach((x,i)=>{sum[x.c]+=(p.scores||[])[i]||0;cnt[x.c]++});
+  return sum.map((v,k)=>cnt[k]?Math.round(v/(cnt[k]*3)*100):null);
+}
+function chemLine(a,b){
+  const N=Q().length, diff=Math.abs(a.pct-b.pct), hr=(hitsOf(a,b)+hitsOf(b,a))/(2*N);
+  let l;
+  if(diff===0) l='꼰대력이 똑같은 쌍둥이 케미';
+  else if(a.pct<20&&b.pct<20) l='둘 다 맑음. 회식도 칼퇴도 평화로운 사이';
+  else if(a.pct>=60&&b.pct>=60) l='라떼 두 잔 콜라보. 같이 있으면 시계가 40년 전으로 돌아가요';
+  else if(diff>=40) l='뜨거운 라떼와 아이스 아메리카노. 온도차 주의';
+  else if(diff<=10) l='엇비슷한 꼰대력. 누가 누구를 뭐라 하기 애매한 사이';
+  else l='적당히 다른 온도의 케미. 서로 보완이 되는 사이';
+  return l+(hr>=.5?' · 서로 속마음을 훤히 읽는 사이':hr<=.25?' · 알고 보니 서로를 잘 모르는 사이':' · 반쯤은 서로 아는 사이');
+}
+function awardsOf(a,b){
+  const aw=[], N=Q().length, nm=p=>esc(p.name);
+  [a,b].forEach(p=>{
+    if(p.guessSelf==null) return;
+    const e=p.pct-p.guessSelf;
+    if(e>=10) aw.push(`<b>자각 없는 꼰대</b> ${nm(p)}님은 스스로 ${p.guessSelf}%라고 했지만 실제는 ${p.pct}%였어요.`);
+    else if(e<=-15) aw.push(`<b>생각보다 멀쩡한 사람</b> ${nm(p)}님은 ${p.guessSelf}%를 예상했지만 실제는 ${p.pct}%였어요. 너무 자책하지 마세요.`);
+  });
+  if(a.guessSelf!=null&&b.guessSelf!=null){
+    const ea=Math.abs(a.pct-a.guessSelf), eb=Math.abs(b.pct-b.guessSelf);
+    if(ea!==eb) aw.push(`<b>자기 파악 정확</b> ${nm(ea<eb?a:b)}님이 자기 점수를 가장 가깝게 맞혔어요.`);
+  }
+  if(a.guessOther!=null&&b.guessOther!=null){
+    const oa=Math.abs(a.guessOther-b.pct), ob=Math.abs(b.guessOther-a.pct);
+    if(oa!==ob) aw.push(`<b>상대 파악 정확</b> ${nm(oa<ob?a:b)}님이 상대 꼰대력을 더 정확히 짚었어요.`);
+  }
+  const ha=hitsOf(a,b), hb=hitsOf(b,a);
+  aw.push(ha===hb?`<b>찰떡 궁합</b> 둘 다 상대 선택을 ${ha}/${N}개 맞혔어요.`:`<b>속마음 읽기</b> ${nm(ha>hb?a:b)}님이 상대 선택을 ${Math.max(ha,hb)}/${N}개 맞혔어요. (${nm(ha>hb?b:a)}님은 ${Math.min(ha,hb)}개)`);
+  const ka=kkondaeTalk(a.id), kb=kkondaeTalk(b.id);
+  if(ka!==kb) aw.push(`<b>채팅 라떼 발언</b> ${nm(ka>kb?a:b)}님의 꼰대 발언이 ${Math.max(ka,kb)}회로 더 많아요. (라떼 감지·신고 합산)`);
+  const ra=catRates(a), rb=catRates(b); let bk=-1,bd=0;
+  CATS.forEach((_,k)=>{if(ra[k]==null||rb[k]==null)return;const d=Math.abs(ra[k]-rb[k]);if(d>bd){bd=d;bk=k}});
+  if(bk>=0&&bd>=20) aw.push(`<b>${esc(CATS[bk])} 부문 최대 차이</b> ${nm(ra[bk]>rb[bk]?a:b)}님이 더 높아요 (${Math.max(ra[bk],rb[bk])}% vs ${Math.min(ra[bk],rb[bk])}%)`);
+  let same=0,mi=-1,md=0;
+  Q().forEach((q,i)=>{const d=Math.abs(((a.scores||[])[i]||0)-((b.scores||[])[i]||0));if(d===0)same++;if(d>md){md=d;mi=i}});
+  if(same>0) aw.push(`<b>같은 마음</b> ${N}문항 중 ${same}문항에서 똑같은 선택을 했어요.`);
+  if(mi>=0&&md>=2){const q=Q()[mi];aw.push(`<b>가장 갈린 문항</b> ${esc(q.q)}<br>${nm(a)}: ${esc(optText(q,(a.scores||[])[mi]))}<br>${nm(b)}: ${esc(optText(q,(b.scores||[])[mi]))}`)}
+  return aw;
+}
+function miniQuiz(){
+  const m=S.mq, it=SLANG[m.i%SLANG.length], ans=m.a!=null;
+  return `<div class="mini"><div class="qno">기다리는 동안 · 신조어 퀴즈 (${m.ok}/${m.n} 정답)</div><div class="mq-q">${esc(it.q)}</div>
+    <div class="opts">${it.o.map((o,k)=>`<button class="opt ${ans?(k===it.a?'right':(k===m.a?'wrong':'')):''}" data-mq="${k}" ${ans?'disabled':''}>${esc(o)}</button>`).join('')}</div>
+    ${ans?`<div class="pick">${m.a===it.a?'정답! ':'아쉬워요. '}${esc(it.e)}</div><button class="btn ghost small" id="mqnext" style="align-self:flex-start">다음 문제</button>`:''}</div>`;
+}
+function postReveal(k){
+  const [a,b]=S.players; if(!a||!b||a.pct==null||b.pct==null||S.postedKey===k) return;
+  S.postedKey=k;
+  const id='rv_'+k.replace(/[^0-9A-Za-z]/g,'_');
+  msgRef().doc(id).set({type:'result',text:`${round()}회차 결과 공개! ${a.name} ${a.pct}% vs ${b.name} ${b.pct}% · ${chemLine(a,b)}`,t:Math.max(a.doneAt||0,b.doneAt||0)+3500}).catch(()=>{});
+}
+const quickList=()=>revealed()?QUICK_POST:QUICK_PRE;
+
+/* ---------- 화면 ---------- */
+function render(){
+  const active=document.activeElement;
+  if(active&&(active.id==='gs'||active.id==='go')) return; /* 슬라이더 드래그 중엔 다시 그리지 않음 */
+  const joinedRoom = S.room && S.subs.length;
+  const html = joinedRoom ? roomView() : joinView();
+  if(html===S.lastHtml) return; /* 바뀐 게 없으면 다시 그리지 않음 (포커스·스크롤·애니메이션 유지) */
+  S.lastHtml=html;
+  const keep=active&&active.id==='msg'?active.value:null, caret=keep!==null?active.selectionStart:0;
+  const fk=focusKey(active), oldLog=document.getElementById('log');
+  const stick=!oldLog||oldLog.scrollHeight-oldLog.scrollTop-oldLog.clientHeight<48, oldTop=oldLog?oldLog.scrollTop:0;
+  $app.innerHTML = html;
+  bind();vsTween();
+  if(keep!==null){const i=document.getElementById('msg'); if(i){i.value=keep;i.focus();try{i.setSelectionRange(caret,caret)}catch(e){}}}
+  else if(fk){const el=findByKey(fk); if(el) el.focus({preventScroll:true})}
+  const log=document.getElementById('log'); if(log) log.scrollTop=stick?log.scrollHeight:oldTop;
+}
+/* 다시 그린 뒤에도 키보드 포커스가 같은 버튼에 남도록 */
+const KEYS=['data-r','data-f','data-q','data-mq','data-tab'];
+function focusKey(el){
+  if(!el||el===document.body) return null;
+  if(el.id) return ['id',el.id];
+  for(const k of KEYS) if(el.hasAttribute&&el.hasAttribute(k)) return [k,el.getAttribute(k)];
+  return null;
+}
+function findByKey(fk){
+  if(fk[0]==='id') return document.getElementById(fk[1]);
+  return [...document.querySelectorAll('['+fk[0]+']')].find(e=>e.getAttribute(fk[0])===fk[1])||null;
+}
+/* 다음 라운드 기본 주제는 직전과 '다른' 주제로 (같은 문제가 또 나오지 않게) */
+const followPack = ()=>{const ks=Object.keys(PACKS),i=ks.indexOf(S.meta&&S.meta.pack);return ks[(i+1)%ks.length]};
+const packOptions = sel=>Object.keys(PACKS).map(k=>`<option value="${k}" ${k===sel?'selected':''}>${esc(PACKS[k].name)}</option>`).join('');
+
+function joinView(){
+  const ok=S.ready&&S.db&&S.uid;
+  if(S.randomWait) return `<div class="card join">
+    <div class="eyebrow">랜덤 채팅 · 혼자 하는 중</div>
+    <h2>상대를 <span class="hl">찾는</span> 중<br>이에요</h2>
+    <p>다른 사람이 랜덤 채팅을 누르면 자동으로 연결돼요. 최대 2분 기다려요.</p>
+    <div class="row"><button class="btn ghost" type="button" id="randCancel">대기 취소</button></div>
+  </div>`;
+  return `<form class="card join" id="joinForm">
+    <div class="eyebrow">꼰대력 인증 센터 · 2인 1조</div>
+    <h2>나 <span class="hl">꼰대</span>야?<br>너 <span class="hl">꼰대</span>야?</h2>
+    <div class="how"><span>① 내 선택</span><span>② 상대 맞히기</span><span>③ 동시 공개</span></div>
+    <label>내 이름<input type="text" id="name" maxlength="12" value="${esc(S.name)}" placeholder="예: 김부장" autocomplete="off"></label>
+    <label>방 코드<input type="text" id="code" maxlength="6" value="${esc(S.codeIn!=null?S.codeIn:(S.room||''))}" placeholder="친구가 알려준 코드" autocomplete="off"></label>
+    <label>주제 (새 방을 만들 때만 적용)<select id="pack">${packOptions(S.packIn||'work')}</select></label>
+    <div class="row"><button class="btn" type="submit" ${ok?'':'disabled'}>입장하기</button>
+    <button class="btn ghost" type="button" id="make" ${ok?'':'disabled'}>새 방 만들기</button><button class="btn ghost" type="button" id="rand" ${ok?'':'disabled'}>랜덤 채팅</button></div>
+    <div class="err" role="alert">${esc(S.err||(S.ready&&!ok?'통신을 시작하지 못했어요. 페이지를 새로고침해 주세요.':''))}</div>
+  </form>`;
+}
+
+function roomView(){
+  const m=me(), other=S.players.find(p=>p.id!==S.uid), rev=revealed();
+  const ps=[0,1].map(i=>{
+    const p=S.players[i], L=i?'B':'A';
+    if(!p) return `<div class="pl ${L}" style="border-style:dashed"><div class="tag">${L}</div><div><div class="nm">기다리는 중…</div><div class="st">방 코드 <b>${esc(S.room)}</b>를 친구에게 알려 주세요</div></div></div>`;
+    const d=isDone(p);
+    const st=d?(rev?'테스트 완료':'완료 · 결과는 동시 공개'):(p.progress&&pRound(p)===round()?`테스트 중 ${p.progress}/${Q().length}`:'아직 시작 전');
+    const kk=kkondaeTalk(p.id);
+    return `<div class="pl ${L}"><div class="tag">${L}</div><div style="min-width:0"><div class="nm">${esc(p.name)}${p.id===S.uid?'<span class="me-mark">나</span>':''}</div><div class="st">${st}</div><div class="st">꼰대 발언 ${kk}회</div></div>${d&&rev?`<div class="pct">${p.pct}%</div>`:''}</div>`;
+  }).join('');
+  const cr=crowns();
+  return `
+  <div class="top"><h1>꼰대력 테스트</h1>
+    <div class="row" style="flex:none"><span class="chip">방 코드 <b>${esc(S.room)}</b><button class="btn ghost small" id="copy">복사</button></span><button class="btn ghost small" id="leave">나가기</button></div></div>
+  ${S.err?`<div class="err">${esc(S.err)}</div>`:''}
+  <div class="metaline"><span>${round()}회차</span><span>주제 ${esc(pack().name)}</span>${cr&&(cr[0]||cr[1])?`<span>꼰대력 더 높았던 횟수 ${esc(S.players[0].name)} ${cr[0]} : ${cr[1]} ${esc(S.players[1].name)}</span>`:''}</div>
+  <div class="players">${ps}</div>
+  <div class="tabs" role="tablist"><button role="tab" data-tab="test" aria-selected="${S.tab==='test'}">테스트</button>
+    <button role="tab" data-tab="chat" aria-selected="${S.tab==='chat'}">채팅${S.unread?'<span class="dot"></span>':''}</button></div>
+  <div class="main" data-tab="${S.tab}">
+    <section class="card test">${testView(m,other)}</section>
+    <section class="card chat"><h3>수다방</h3>
+      <div class="log" id="log">${chatLog()}</div>
+      <form class="send" id="sendForm"><input type="text" id="msg" maxlength="300" placeholder="메시지 입력" aria-label="메시지 입력" autocomplete="off"><button class="btn" type="submit">보내기</button></form>
+    </section>
+  </div>`;
+}
+
+function certBlock(p,animate){
+  const pct=p.pct, ty=typeOf(p.scores||[],pct);
+  return `<div class="cert"><div class="qno">꼰대 인증서 · ${round()}회차</div>
+    <div class="stamp ${animate?'slam':''}">${esc(tierOf(pct))}</div>
+    <div class="type">${esc(ty)}</div>
+    <div class="oneliner">${esc(TIERLINE[tierIdx(pct)])}</div>
+    <div class="desc">${esc(TYPEINFO[ty]||'')}</div>
+    <div class="big">${pct}<small>%</small></div>
+    ${p.guessSelf!=null?`<div class="pick">내가 예상한 점수 ${p.guessSelf}% → 실제 ${pct}%</div>`:''}</div>`;
+}
+
+/* 예상 입력: 데스크톱은 슬라이더, 모바일은 10 단위 버튼 (CSS에서 전환) */
+function guessRow(key,label,val){
+  const vals=[0,10,20,30,40,50,60,70,80,90,100];
+  return `<div class="sl"><label for="${key}">${label}</label><output id="${key}v">${val}%</output>
+    <input type="range" id="${key}" min="0" max="100" step="10" value="${val}">
+    <div class="pv-grid" role="group" aria-label="${label}">${vals.map(v=>`<button type="button" class="${v===val?'on':''}" data-gkey="${key}" data-v="${v}" aria-pressed="${v===val}">${v}%</button>`).join('')}</div></div>`;
+}
+/* 받침 여부에 따라 은/는 고르기 (한글이 아니면 '은') */
+function eunNeun(s){
+  const c=String(s).trim().charCodeAt(String(s).trim().length-1);
+  return c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28===0?'는':'은';
+}
+/* 실시간 대결 게이지: 지금까지 고른 문항의 평균 꼰대 점수. 마지막 3문항부터는 가려서 결과 공개 때 한 번에 보여줘요 */
+const SECRET_LAST=3;
+function runPct(sc){const a=(sc||[]).filter(x=>typeof x==='number');return a.length?a.reduce((x,y)=>x+y,0)/(a.length*3)*100:null}
+function vsView(n){
+  const [p0,p1]=S.players; if(!p0||!p1) return '';
+  const hide=n-S.step<=SECRET_LAST;
+  const val=p=>runPct(p.id===S.uid?S.answers:(p.scores||[]).slice(0,pRound(p)===round()?(p.progress||0):0));
+  const v=[val(p0),val(p1)], ok=v[0]!=null&&v[1]!=null;
+  const head=(p,i)=>`<span class="vs-p ${i?'B':'A'} ${!hide&&S.vsFresh&&S.vsLead===(i?-1:1)?'lead':''}"><span class="vs-n">${esc(p.name)}</span> <b ${hide||v[i]==null?'':`data-to="${Math.round(v[i])}" data-from="${S.vsFresh&&S.vsFromV?S.vsFromV[i]:Math.round(v[i])}"`}>${hide||v[i]==null?'??':Math.round(v[i])+'%'}</b></span>`;
+  let bar,note='';
+  if(hide){bar='<div class="vs-bar fog"><i></i></div>'}
+  else{
+    /* 값이 바뀔 때만 이전 위치를 기억해서, 막대가 거기서부터 미끄러지게 해요 (다른 이유로 다시 그려도 반복되지 않음) */
+    const share=ok&&v[0]+v[1]>0?Math.min(88,Math.max(12,v[0]/(v[0]+v[1])*100)):50;
+    const key=ok?Math.round(v[0])+','+Math.round(v[1]):'-';
+    if(key!==S.vsKey){
+      const d=ok?Math.round(v[0]-v[1]):0, lead=Math.abs(d)<5?0:(d>0?1:-1), who=esc((d>0?p0:p1).name);
+      S.vsFrom=S.vsShare==null?50:S.vsShare;
+      const prevNote=S.vsNote;
+      S.vsNote=!ok?'둘 다 한 문항 이상 고르면 게이지가 움직여요'
+        :S.vsKey==null||S.vsKey==='-'?'대결 시작!'
+        :lead&&S.vsLead&&lead!==S.vsLead?`역전! ${who}님이 치고 나가요`
+        :lead===0?'팽팽해요 · 승부는 아직 몰라요'
+        :Math.abs(d)>=30?`${who}님이 멀리 달아나요`
+        :`${who}님이 ${Math.abs(d)}%p 앞서요`;
+      if(/^역전/.test(S.vsNote)) S.vsHoldUntil=Date.now()+2600; else if(Date.now()<(S.vsHoldUntil||0)&&/^역전/.test(prevNote||'')) S.vsNote=prevNote; /* 역전 멘트는 잠깐 붙잡아 둬요 */
+      S.vsFromV=S.vsV||[0,0];S.vsV=ok?[Math.round(v[0]),Math.round(v[1])]:[0,0];S.vsFlip=!!(lead&&S.vsLead&&lead!==S.vsLead);
+      S.vsKey=key;S.vsShare=share;S.vsLead=lead||S.vsLead||0;S.vsFresh=true;
+      clearTimeout(S.vsT);S.vsT=setTimeout(()=>{S.vsFrom=S.vsShare;S.vsFromV=S.vsV;S.vsFresh=false;S.vsFlip=false},1100);
+    }
+    const from=S.vsFrom==null?share:S.vsFrom;
+    bar=`<div class="vs-bar" style="--from:${from}%;--to:${S.vsShare}%;--kc:${S.vsLead===1?'var(--a)':S.vsLead===-1?'var(--b)':'var(--ink)'}"><i class="a"></i><i class="b"></i><span class="knob"></span></div>`;
+    note=S.vsNote||'';
+  }
+  return `<div class="vs${hide?'':S.vsFresh?' fresh':''}${!hide&&S.vsFresh&&S.vsFlip?' flip':''}" role="group" aria-label="실시간 꼰대력 대결">
+    <div class="vs-h">${head(p0,0)}<span class="vs-mid">VS</span>${head(p1,1)}</div>${bar}${note?`<div class="vs-note">${note}</div>`:''}</div>`;
+}
+/* 숫자가 이전 값에서 새 값까지 올라가는 효과 (다시 그린 직후에만) */
+function vsTween(){
+  document.querySelectorAll('.vs.fresh .vs-p b[data-to]').forEach(el=>{
+    const f=+el.dataset.from,t=+el.dataset.to; if(f===t) return;
+    const t0=performance.now(),D=650;
+    const step=now=>{const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);el.textContent=Math.round(f+(t-f)*e)+'%';if(k<1&&el.isConnected)requestAnimationFrame(step)};
+    el.textContent=f+'%';requestAnimationFrame(step);
+  });
+}
+function testView(m,other){
+  const Qs=Q(), n=Qs.length, done=S.step>=n||isDone(m);
+  if(!done && S.step===0 && !S.inQuiz){
+    return `<div class="intro"><h2>나는 몇 퍼센트 꼰대일까?</h2>
+      ${guessRow('gs','나는 몇 퍼센트 꼰대일까?',S.gs)}
+      ${guessRow('go',`${esc(other?other.name:'상대')}${eunNeun(other?other.name:'상대')} 몇 퍼센트 꼰대일까?`,S.go)}
+      <p>${n}문항 · 주제 ${esc(pack().name)} · 숫자키 1~4로 고를 수도 있어요.</p>
+      <div class="row"><button class="btn" id="start">시작하기</button><button class="btn ghost" id="startSkip">예상 건너뛰고 바로 시작</button></div></div>`;
+  }
+  if(!done){
+    const q=Qs[S.step], opts=(S.shuf&&S.shuf[S.step])||q.o;
+    const g=S.phase==='guess';
+    return `${vsView(n)}<div><div class="qno">${S.step+1} / ${n}</div><div class="bar"><i style="width:${(S.step+(g?.5:0))/n*100}%"></i></div></div>
+      <span class="phase ${g?'g':''}">${g?`맞히기: ${esc(other?other.name:'상대')}${eunNeun(other?other.name:'상대')} 뭘 골랐을까?`:'내 선택'}</span>
+      <div class="q">${esc(q.q)}</div>
+      ${g?`<div class="pick">내 선택은 저장됐어요. 상대는 뭘 골랐을 것 같아요? (정답은 결과 공개 때!)</div>`:''}
+      <div class="opts">${opts.map((o,i)=>`<button class="opt" ${g?'data-g':'data-s'}="${o[1]}"><span class="k">${i+1}</span><span class="t">${esc(o[0])}</span>${g&&o[1]===S.pend?'<span class="tagme">내 선택</span>':''}</button>`).join('')}</div>
+      ${(g||S.step>0)?`<div class="row"><button class="btn ghost small" id="back" type="button">← 이전</button></div>`:''}`;
+  }
+  /* 끝난 뒤 */
+  const mine=m&&isDone(m)?m:{pct:Math.round(S.answers.reduce((a,b)=>a+b,0)/maxScore()*100),scores:S.answers,guesses:S.guesses,guessSelf:S.skip?null:S.gs};
+  if(S.cd!=null) return `<div class="center">둘 다 끝났어요! 결과 공개까지</div><div class="cd">${S.cd}</div>`;
+  if(!revealed()){
+    const waiting=other?`<b>${esc(other.name)}</b>님이 아직 푸는 중이에요.`:'상대가 아직 들어오지 않았어요.';
+    return `<div class="result"><h2 style="font-size:26px">테스트 완료!</h2>
+      <p style="margin:0">${waiting} 결과는 둘 다 끝나면 카운트다운 뒤에 동시에 공개돼요.</p>
+      <p class="pick" style="margin:0">기다리는 동안 채팅으로 상대의 꼰대력을 슬쩍 떠보세요.</p>
+      ${S.peek?certBlock(mine,false):`<div class="row"><button class="btn ghost" id="peek">내 결과만 먼저 보기</button></div>`}
+      ${miniQuiz()}</div>`;
+  }
+  /* 공개 */
+  const a=S.players[0], b=S.players[1];
+  const diff=Math.abs(a.pct-b.pct), aw=awardsOf(a,b);
+  const meP=S.players.find(p=>p.id===S.uid), oth=S.players.find(p=>p.id!==S.uid);
+  const detail=Q().map((q,i)=>{
+    const their=(oth.scores||[])[i], hit=(meP.guesses||[])[i]===their;
+    const txt=optText(q,their);
+    return `<div class="hit"><span class="m ${hit?'ok':'no'}">${hit?'O':'X'}</span><span>${esc(q.q)}<br><span class="pick">${esc(oth.name)}님의 선택: ${esc(txt)}</span></span></div>`;
+  }).join('');
+  const winner=diff===0?'꼰대력이 똑같아요. 소름!':`${esc((a.pct>b.pct?a:b).name)}님이 ${diff}%p 더 꼰대력이 높아요.`;
+  const el=S.revealAt?(Date.now()-S.revealAt)/1000:99, play=el<2.4; /* 공개 직후 2.4초 동안만 애니메이션 (그 사이 다시 그려져도 이어서 재생) */
+  return `<div class="result ${play?'play':''}" ${play?`style="--el:${el.toFixed(2)}s"`:''}>${certBlock(meP,play)}
+    <div class="cmp"><h3 style="font-size:20px">둘의 결과 비교</h3>
+      ${[a,b].map((p,i)=>`<div class="cb ${i?'B':'A'}"><div class="cbh"><span class="nm">${esc(p.name)}</span><span class="v">${p.pct}%</span></div><div class="cbt">${esc(tierOf(p.pct))} · ${esc(typeOf(p.scores||[],p.pct))}</div><div class="bar ${i?'B':'A'}"><i style="width:${p.pct}%"></i></div></div>`).join('')}
+      <div class="winner">${winner}</div>
+      <div class="chem"><span class="hh">🤝</span><span>${esc(chemLine(a,b))}</span></div>
+      <div class="awards">${aw.map(x=>`<div class="award">${x}</div>`).join('')}</div>
+      <details ${S.detOpen?'open':''}><summary>질문별 맞히기 결과 (나의 예측)</summary>${detail}</details>
+    </div>
+    <div class="row"><button class="btn ghost" id="share">결과 텍스트 복사</button></div>
+    <div class="cmp"><h3 style="font-size:20px">한 번 더?</h3>
+      <div class="row"><select id="nextPack" aria-label="다음 주제">${packOptions(S.nextPack||followPack())}</select><button class="btn" id="next">다시하기</button></div></div>
+  </div>`;
+}
+
+function chatLog(){
+  if(!S.msgs.length) return '<div class="empty">아직 대화가 없어요. 먼저 한마디 해 보세요.</div>';
+  return S.msgs.map(m=>{
+    if(m.type==='sys') return `<div class="sys">${esc(m.text)}</div>`;
+    if(m.type==='result') return `<div class="sys res">${esc(m.text)}</div>`;
+    const p=S.players.find(x=>x.id===m.uid), L=p?slot(p):'A', mine=m.uid===S.uid;
+    const flags=Object.values(m.flags||{}).filter(Boolean).length, auto=AUTO.test(m.text);
+    const rx=m.reactions||{};
+    return `<div class="msg ${L} ${mine?'mine':''}"><div class="who">${esc(maskBad(m.name||''))}</div><div class="bub">${esc(maskBad(m.text))}</div>
+      ${auto?'<div class="warn">꼰대 경고 · 라떼 감지</div>':''}${flags?`<div class="warn">꼰대 발언 신고 ${flags}</div>`:''}
+      <div class="acts">${REACTS.map(e=>{const c=Object.values(rx).filter(v=>v===e).length;return `<button data-r="${esc(m.id)}|${e}" class="${rx[S.uid]===e?'on':''}" aria-label="반응 ${e}">${e}${c?' '+c:''}</button>`}).join('')}${mine?'':`<button class="fl ${(m.flags||{})[S.uid]?'on':''}" data-f="${esc(m.id)}">🚨 꼰대 발언 신고</button>`}</div></div>`;
+  }).join('');
+}
+
+function bind(){
+  const $=id=>document.getElementById(id);
+  if($('randCancel')) $('randCancel').onclick=cancelRandom;
+  const jf=$('joinForm');
+  if(jf){
+    $('name').oninput=e=>S.name=e.target.value;
+    $('code').oninput=e=>S.codeIn=e.target.value;
+    $('pack').onchange=e=>S.packIn=e.target.value;
+    jf.onsubmit=e=>{e.preventDefault();S.name=$('name').value;join($('code').value,$('pack').value)};
+    $('make').onclick=()=>{S.name=$('name').value;join(newCode(),$('pack').value)};
+    $('rand').onclick=()=>{S.name=$('name').value;startRandom($('pack').value)};
+    return;
+  }
+  if($('copy')) $('copy').onclick=()=>{
+    const t=S.room;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('방 코드를 복사했어요')).catch(()=>toast('방 코드: '+t));
+  };
+  if($('leave')) $('leave').onclick=leave;
+  if($('gs')){
+    $('gs').oninput=e=>{S.gs=+e.target.value;$('gsv').textContent=S.gs+'%'};
+    $('go').oninput=e=>{S.go=+e.target.value;$('gov').textContent=S.go+'%'};
+  }
+  document.querySelectorAll('[data-gkey]').forEach(b=>b.onclick=()=>{S[b.dataset.gkey]=+b.dataset.v;render()});
+  if($('start')) $('start').onclick=()=>startQuiz(false);
+  if($('startSkip')) $('startSkip').onclick=()=>startQuiz(true);
+  document.querySelectorAll('[data-mq]').forEach(b=>b.onclick=()=>{const it=SLANG[S.mq.i%SLANG.length],k=+b.dataset.mq;S.mq.a=k;S.mq.n++;if(k===it.a)S.mq.ok++;render()});
+  if($('mqnext')) $('mqnext').onclick=()=>{S.mq.i=(S.mq.i+1+Math.floor(Math.random()*(SLANG.length-1)))%SLANG.length;S.mq.a=null;render()};
+  if($('peek')) $('peek').onclick=()=>{S.peek=true;render()};
+  const dt=document.querySelector('details'); if(dt) dt.ontoggle=()=>{S.detOpen=dt.open};
+  if($('nextPack')) $('nextPack').onchange=e=>{S.nextPack=e.target.value};
+  if($('next')) $('next').onclick=()=>nextRound($('nextPack').value);
+  if($('share')) $('share').onclick=()=>{
+    const [a,b]=S.players;
+    const t=`☕ 꼰대력 테스트 ${round()}회차 (${pack().name})\n${a.name} ${a.pct}% · ${tierOf(a.pct)} · ${typeOf(a.scores||[],a.pct)}\n${b.name} ${b.pct}% · ${tierOf(b.pct)} · ${typeOf(b.scores||[],b.pct)}\n🤝 ${chemLine(a,b)}`;
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('결과를 복사했어요')).catch(()=>toast('복사하지 못했어요'));
+  };
+  document.querySelectorAll('.opt[data-s]').forEach(b=>b.onclick=()=>pickMine(+b.dataset.s));
+  document.querySelectorAll('.opt[data-g]').forEach(b=>b.onclick=()=>pickGuess(+b.dataset.g));
+  const backBtn=document.getElementById('back'); if(backBtn) backBtn.onclick=goBack;
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;if(S.tab==='chat')S.unread=false;render()});
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const [id,e]=b.dataset.r.split('|');react(id,e)});
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>flag(b.dataset.f));
+  const sf=$('sendForm'); if(sf) sf.onsubmit=e=>{e.preventDefault();const i=$('msg');const v=i.value;i.value='';say(v)};
+}
+
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||(e.target.closest&&e.target.closest('input,select,textarea'))) return;
+  const k=+e.key; if(k>=1&&k<=4){if(e.repeat) return; const b=document.querySelectorAll('.test .opt[data-s],.test .opt[data-g]')[k-1]; if(b&&b.offsetParent!==null) b.click()}
+});
+boot();
+</script>

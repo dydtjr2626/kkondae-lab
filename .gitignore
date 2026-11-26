@@ -1,0 +1,20 @@
+# API 키 등 비밀 정보 (절대 올리지 않기)
+.env
+.env.*
+*.env
+
+# 임시/작업 파일
+server.backup.js
+_work/
+*.log
+node_modules/
+
+# 서버 실행 중 생성되는 방/채팅 데이터
+data.json
+
+# 운영체제/에디터
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
