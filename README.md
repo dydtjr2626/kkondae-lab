@@ -18,7 +18,17 @@ node server.js
 | 이름 | 기본값 | 설명 |
 |---|---|---|
 | `PORT` | `2500` | 서버 포트 |
-| `HOST` | `127.0.0.1` | 바인딩 주소 (외부 접속을 허용하려면 `0.0.0.0`) |
+| `HOST` | `127.0.0.1` | 바인딩 주소 (`PORT`가 지정된 배포 환경에서는 자동으로 `0.0.0.0`) |
+
+## 배포 (Render)
+
+1. GitHub에 push 후 [Render](https://render.com) → New → Web Service 에서 이 repo 연결
+2. Runtime: `Node`, Build Command: 비워두기(또는 `npm install`), Start Command: `npm start`
+3. Deploy 후 발급된 `https://....onrender.com` 주소로 접속
+
+> 무료 플랜은 일정 시간 접속이 없으면 잠들고, 재시작하면 `data.json`(방/채팅 기록)이 초기화됩니다.
+
+**배포 주소:** (배포 후 여기에 입력)
 
 ## 구성
 

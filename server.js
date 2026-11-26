@@ -4,8 +4,9 @@
 // - /api/random/* : 랜덤 채팅 대기열. 두 사람이 모이면 새 방 코드를 만들어 짝지어 줍니다.
 // 내 PC에서는 127.0.0.1(터널로만 연결). Render 같은 호스팅에서는 HOST 환경변수로 0.0.0.0을 줍니다.
 const http = require("http"), fs = require("fs"), path = require("path"), crypto = require("crypto");
-const PORT = Number(process.env.PORT) || 2500, HOST = process.env.HOST || "127.0.0.1";
+const PORT = Number(process.env.PORT) || 2500, HOST = process.env.HOST || (process.env.PORT ? "0.0.0.0" : "127.0.0.1"); // 배포 환경(PORT 지정)에서는 외부 접속 허용
 const FILE = path.join(__dirname, "kkondae.html");
+const LOGO = path.join(__dirname, "logo.png");
 const DATA = path.join(__dirname, "data.json"); // 방 데이터 저장 파일 (서버를 껐다 켜도 남아 있음)
 
 // 컬렉션은 rooms/방코드/(players|msgs|meta) 형식만, 문서 id는 안전한 문자만 허용
@@ -168,6 +169,11 @@ http.createServer((q, r) => {
   const url = new URL(q.url || "/", "http://localhost");
   if (url.pathname.startsWith("/api/")) return api(q, r, url);
   if (q.method !== "GET" && q.method !== "HEAD") { r.writeHead(405); return r.end(); }
+  if (url.pathname === "/logo.png") { // 로고 이미지 (배경 투명)
+    r.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "public, max-age=3600", "X-Content-Type-Options": "nosniff" });
+    if (q.method === "HEAD") return r.end();
+    return fs.createReadStream(LOGO).on("error", () => r.destroy()).pipe(r);
+  }
   if (url.pathname !== "/" && url.pathname !== "/kkondae.html") { r.writeHead(404); return r.end("404"); }
   r.writeHead(200, { "Content-Type": "text/html;charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
   if (q.method === "HEAD") return r.end();

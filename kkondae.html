@@ -2,7 +2,7 @@
 <html lang="ko">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>꼰대력 테스트</title>
+<title>꼰대연구소</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
@@ -37,6 +37,12 @@ button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:tra
 button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--a);outline-offset:2px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .top h1{font-size:30px;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.top h1.brand::before{content:none}
+.logo{display:block;height:60px;width:auto;max-width:100%}
+.join .logo{height:76px;margin:-2px 0 4px;align-self:flex-start}
+/* 로고 글자가 어두운 남색이라 다크 모드에서는 밝은 판 위에 올려요 */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .logo{background:#eef2f8;border-radius:12px;padding:4px 12px}}
+:root[data-theme="dark"] .logo{background:#eef2f8;border-radius:12px;padding:4px 12px}
 .top h1::before{content:"☕";font-size:.8em;display:grid;place-items:center;width:1.5em;height:1.5em;border-radius:8px;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow)}
 .chip{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 14px;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-size:13px;color:var(--muted)}
 .chip b{letter-spacing:.2em;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums}
@@ -909,6 +915,7 @@ function joinView(){
     <div class="row"><button class="btn ghost" type="button" id="randCancel">대기 취소</button></div>
   </div>`;
   return `<form class="card join" id="joinForm">
+    <img class="logo" src="/logo.png" alt="꼰대연구소" width="160" height="56">
     <div class="eyebrow">꼰대력 인증 센터 · 2인 1조</div>
     <h2>나 <span class="hl">꼰대</span>야?<br>너 <span class="hl">꼰대</span>야?</h2>
     <div class="how"><span>① 내 선택</span><span>② 상대 맞히기</span><span>③ 동시 공개</span></div>
@@ -933,7 +940,7 @@ function roomView(){
   }).join('');
   const cr=crowns();
   return `
-  <div class="top"><h1>꼰대력 테스트</h1>
+  <div class="top"><h1 class="brand"><img class="logo" src="/logo.png" alt="꼰대연구소" width="160" height="56"></h1>
     <div class="row" style="flex:none"><span class="chip">방 코드 <b>${esc(S.room)}</b><button class="btn ghost small" id="copy">복사</button></span><button class="btn ghost small" id="leave">나가기</button></div></div>
   ${S.err?`<div class="err">${esc(S.err)}</div>`:''}
   <div class="metaline"><span>${round()}회차</span><span>주제 ${esc(pack().name)}</span>${cr&&(cr[0]||cr[1])?`<span>꼰대력 더 높았던 횟수 ${esc(S.players[0].name)} ${cr[0]} : ${cr[1]} ${esc(S.players[1].name)}</span>`:''}</div>
@@ -1120,7 +1127,7 @@ function bind(){
   if($('next')) $('next').onclick=()=>nextRound($('nextPack').value);
   if($('share')) $('share').onclick=()=>{
     const [a,b]=S.players;
-    const t=`☕ 꼰대력 테스트 ${round()}회차 (${pack().name})\n${a.name} ${a.pct}% · ${tierOf(a.pct)} · ${typeOf(a.scores||[],a.pct)}\n${b.name} ${b.pct}% · ${tierOf(b.pct)} · ${typeOf(b.scores||[],b.pct)}\n🤝 ${chemLine(a,b)}`;
+    const t=`☕ 꼰대연구소 ${round()}회차 (${pack().name})\n${a.name} ${a.pct}% · ${tierOf(a.pct)} · ${typeOf(a.scores||[],a.pct)}\n${b.name} ${b.pct}% · ${tierOf(b.pct)} · ${typeOf(b.scores||[],b.pct)}\n🤝 ${chemLine(a,b)}`;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('결과를 복사했어요')).catch(()=>toast('복사하지 못했어요'));
   };
   document.querySelectorAll('.opt[data-s]').forEach(b=>b.onclick=()=>pickMine(+b.dataset.s));
