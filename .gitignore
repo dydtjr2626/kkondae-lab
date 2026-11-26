@@ -3,9 +3,7 @@
 .env.*
 *.env
 
-# 임시/작업 파일
-server.backup.js
-_work/
+# 로그/의존성
 *.log
 node_modules/
 

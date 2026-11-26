@@ -2,7 +2,7 @@
 // - kkondae.html 제공
 // - /api : 방(room) 단위로 플레이어·채팅·결과를 저장하고, 변경 알림은 SSE(/api/events)로 보냅니다.
 // - /api/random/* : 랜덤 채팅 대기열. 두 사람이 모이면 새 방 코드를 만들어 짝지어 줍니다.
-// 내 PC에서는 127.0.0.1(터널로만 연결). Render 같은 호스팅에서는 HOST 환경변수로 0.0.0.0을 줍니다.
+// 내 PC에서는 127.0.0.1로만 열립니다. Render 같은 호스팅은 PORT를 지정하므로 자동으로 0.0.0.0(외부 접속 허용)이 됩니다.
 const http = require("http"), fs = require("fs"), path = require("path"), crypto = require("crypto");
 const PORT = Number(process.env.PORT) || 2500, HOST = process.env.HOST || (process.env.PORT ? "0.0.0.0" : "127.0.0.1"); // 배포 환경(PORT 지정)에서는 외부 접속 허용
 const FILE = path.join(__dirname, "kkondae.html");
