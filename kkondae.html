@@ -51,6 +51,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .btn:active{transform:translateY(1px) scale(.985)}
 .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
 .btn.small{padding:5px 12px;font-size:13px;border-radius:999px}
+/* 터치 화면에서는 작은 버튼도 누르기 편하게 */
+@media (pointer:coarse){.btn.small{min-height:38px;min-width:48px;padding:7px 14px}}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 @media (hover:hover){
   .btn:not(:disabled):hover{box-shadow:0 6px 14px -6px rgba(20,33,61,.5);transform:translateY(-1px)}
@@ -96,7 +98,7 @@ label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute
 .tag{flex:none;width:38px;height:38px;border-radius:8px;display:grid;place-items:center;font-family:var(--font-display);font-size:21px;color:var(--on-a);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
 .A .tag{background:var(--a)} .B .tag{background:var(--b);color:var(--on-b)}
 .pl .nm{font-weight:700;overflow-wrap:anywhere;line-height:1.35}
-.pl .st{font-size:12.5px;color:var(--muted);line-height:1.4}
+.pl .st{font-size:12.5px;color:var(--muted);line-height:1.4;word-break:keep-all}
 .pl .pct{margin-left:auto;padding-left:8px;font-family:var(--font-display);font-size:30px;line-height:1}
 .A .pct{color:var(--a)} .B .pct{color:var(--b)}
 .me-mark{font-size:11px;background:var(--ink);color:var(--bg);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle;font-weight:500}
@@ -117,7 +119,7 @@ label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute
 .vs-n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;color:var(--muted)}
 .vs-p b{display:inline-block;font-family:var(--font-display);font-weight:400;font-size:18px;font-variant-numeric:tabular-nums}
 .vs-p.A b{color:var(--a)} .vs-p.B b{color:var(--b)}
-.vs-mid{flex:none;font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--muted)}
+.vs-mid{flex:none;font-size:11px;font-weight:700;letter-spacing:.18em;color:var(--muted)}
 .vs-bar{position:relative;display:flex;height:10px;border-radius:5px;background:var(--line);margin:4px 0 2px}
 .vs-bar i{display:block;height:100%}
 .vs-bar .a{width:var(--to);background:linear-gradient(90deg,color-mix(in srgb,var(--a) 70%,transparent),var(--a));border-radius:5px 0 0 5px}
@@ -448,12 +450,21 @@ const RemoteDB=(()=>{
   const merge=(a,b)=>{const o={...a};for(const k in b)o[k]=isObj(b[k])&&isObj(o[k])?merge(o[k],b[k]):b[k];return o};
   const fire=()=>subs.forEach(f=>f());
   const api=async(url,body)=>{
-    const r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:undefined);
+    const r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'application/json'},body:typeof body==='string'?body:JSON.stringify(body)}:undefined);
     const j=await r.json().catch(()=>({}));
     if(!r.ok) throw Object.assign(new Error(j.error||'http'),{code:j.error||String(r.status)});
     return j;
   };
-  const write=async body=>{const j=await api('/api/write',body);fire();return j};
+  /* 쓰기 요청은 누른 순서대로 한 줄로 보냅니다. 빠르게 연달아 눌러도 서버에 순서가 뒤바뀌어 도착하지 않도록 하기 위해서예요.
+     (예: 마지막 문항 '완료' 저장보다 이전 문항 '진행도' 저장이 늦게 도착해 결과 공개가 멈추던 문제)
+     내용은 누른 시점에 바로 문자열로 만들어 두므로, 대기하는 동안 값이 바뀌어도 영향이 없습니다. */
+  let wq=Promise.resolve();
+  const write=body=>{
+    const payload=JSON.stringify(body);
+    const run=wq.then(()=>api('/api/write',payload));
+    wq=run.catch(()=>{});
+    return run.then(j=>{fire();return j});
+  };
   const mkDoc=(id,d)=>({id,exists:d!==undefined,data:()=>d===undefined?undefined:JSON.parse(JSON.stringify(d))});
   const listDocs=async col=>{const j=await api('/api/list?col='+enc(col));return j.docs.map(d=>mkDoc(d.id,d.data))};
   const snapOf=(docs,q)=>{
