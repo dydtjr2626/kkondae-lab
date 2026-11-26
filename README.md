@@ -35,6 +35,7 @@ node server.js
 - `server.js` — 정적 파일 + 방/채팅 API, 변경 알림(SSE), 랜덤 매칭
 - `logo.png` — 로고 이미지
 - `package.json` — start 스크립트, Node>=18
+- `LICENSE` — MIT 라이선스
 - `.gitignore` — 제외 목록
 - `data.json` — 방/채팅이 저장될 때 생성되는 데이터 파일 (git 제외)
 
