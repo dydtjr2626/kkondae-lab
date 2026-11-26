@@ -28,7 +28,7 @@ node server.js
 
 > 무료 플랜은 일정 시간 접속이 없으면 잠들고, 재시작하면 `data.json`(방/채팅 기록)이 초기화됩니다.
 
-**배포 주소:** (배포 후 여기에 입력)
+**배포 주소:** https://kkondae-lab.onrender.com
 
 ## 구성
 
