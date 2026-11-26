@@ -15,6 +15,14 @@ const ID_RE = /^(?!__proto__$)[A-Za-z0-9_.-]{1,80}$/;
 const hasOwn = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 const isObj = v => v && typeof v === "object" && !Array.isArray(v);
 const merge = (a, b) => { const o = { ...a }; for (const k in b) o[k] = isObj(b[k]) && isObj(o[k]) ? merge(o[k], b[k]) : b[k]; return o; };
+const DOC_MAX = 2048; // 문서 1개 JSON 길이(문자)
+const MSG_MAX = 200;  // 방당 메시지 보관 수
+const PLAYER_MAX = 20; // 방당 플레이어 문서(gone 포함)
+const ROOM_MAX = 150;  // 서버 전체 방 수
+const SSE_MAX = 300, SSE_ROOM_MAX = 8, QUEUE_MAX = 100;
+const roomExists = code => ["players", "msgs", "meta"].some(t => db["rooms/" + code + "/" + t]); // db는 아래에서 선언되지만 호출 시점에는 이미 있음
+const roomCount = () => { const s = new Set(); for (const k in db) s.add(k.split("/")[1]); return s.size; };
+let sseCount = 0;
 
 let db = {};
 try { db = JSON.parse(fs.readFileSync(DATA, "utf8")) || {}; } catch (e) { db = {}; }
@@ -52,9 +60,10 @@ function json(r, code, obj) {
   r.end(JSON.stringify(obj));
 }
 function readJson(req, cb) {
+  req.setEncoding("utf8");
   let s = "", over = false;
-  req.on("data", c => { if (over) return; s += c; if (s.length > 64 * 1024) { over = true; cb(new Error("too big")); } });
-  req.on("end", () => { if (over) return; try { cb(null, JSON.parse(s || "{}")); } catch (e) { cb(e); } });
+  req.on("data", c => { if (over) return; s += c; if (s.length > 64*1024) { over = true; cb(new Error("too big")); } });
+  req.on("end", () => { if (over) return; let v; try { v = JSON.parse(s || "{}"); } catch (e) { return cb(e); } cb(null, v); });
 }
 
 function api(req, r, url) {
@@ -64,12 +73,15 @@ function api(req, r, url) {
   if (p === "/api/events" && req.method === "GET") {
     const room = q.get("room") || "";
     if (!/^[A-Z0-9]{3,6}$/.test(room)) return json(r, 400, { error: "bad-room" });
+    if (sseCount >= SSE_MAX || (streams.get(room) && streams.get(room).size >= SSE_ROOM_MAX)) return json(r, 503, { error: "busy" });
+    sseCount++;
     r.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-store", "Connection": "keep-alive" });
     r.write(": connected\n\n");
     if (!streams.has(room)) streams.set(room, new Set());
     streams.get(room).add(r);
     const ka = setInterval(() => r.write(": ping\n\n"), 25000);
     req.on("close", () => {
+      sseCount--;
       clearInterval(ka);
       const set = streams.get(room);
       if (set) { set.delete(r); if (!set.size) streams.delete(room); }
@@ -102,17 +114,34 @@ function api(req, r, url) {
       if (!COL_RE.test(col) || !ID_RE.test(id)) return json(r, 400, { error: "bad-path" });
       if (op !== "delete" && !isObj(data)) return json(r, 400, { error: "bad-data" });
       if (op !== "set" && op !== "update" && op !== "delete") return json(r, 400, { error: "bad-op" });
+      const room = col.split("/")[1], kind = col.split("/")[2];
+      if (kind === "meta" && id !== "info") return json(r, 400, { error: "bad-path" });
+      const cur = db[col] || {};
+      let next;
+      if (op !== "delete") {
+        if (op === "update" && !hasOwn(cur, id)) return json(r, 404, { error: "not-found" });
+        next = op === "set" ? data : merge(cur[id], data);
+        if (JSON.stringify(next).length > DOC_MAX) return json(r, 413, { error: "too-big" });
+        if (op === "set" && !roomExists(room) && roomCount() >= ROOM_MAX) return json(r, 503, { error: "server-full" });
+        if (op === "set" && kind === "players" && !hasOwn(cur, id) && Object.keys(cur).length >= PLAYER_MAX) return json(r, 403, { error: "room-full" });
+      }
       const c = (db[col] = db[col] || {});
-      if (op === "set") c[id] = data;
-      else if (op === "update") {
-        if (!hasOwn(c, id)) return json(r, 404, { error: "not-found" });
-        c[id] = merge(c[id], data);
+      if (op === "set" || op === "update") {
+        c[id] = next;
+        if (op === "set" && kind === "msgs") {
+          const t = k => Number(c[k] && c[k].t) || 0;
+          while (Object.keys(c).length > MSG_MAX) {
+            let min = null;
+            for (const k of Object.keys(c)) if (min === null || t(k) < t(min)) min = k;
+            delete c[min];
+          }
+        }
       } else {
         if (hasOwn(c, id)) delete c[id];
         if (!Object.keys(c).length) delete db[col];
       }
       saveSoon();
-      notify(col.split("/")[1]);
+      notify(room);
       return json(r, 200, { ok: true });
     });
   }
@@ -125,8 +154,10 @@ function api(req, r, url) {
       const pack = PACKS.includes(b.pack) ? b.pack : "work";
       if (!ID_RE.test(uid)) return json(r, 400, { error: "bad-uid" });
       pruneLobby();
+      if (queue.length >= QUEUE_MAX && !queue.some(x => x.uid === uid)) return json(r, 503, { error: "busy" });
       const idx = queue.findIndex(x => x.uid !== uid);
       if (idx >= 0) {
+        if (roomCount() >= ROOM_MAX) return json(r, 503, { error: "server-full" });
         const other = queue.splice(idx, 1)[0];
         const room = newRoomCode();
         db["rooms/" + room + "/meta"] = { info: { round: 1, pack: other.pack, seed: Math.floor(Math.random() * 1e9) + 1 } };
@@ -166,7 +197,7 @@ function api(req, r, url) {
 }
 
 http.createServer((q, r) => {
-  const url = new URL(q.url || "/", "http://localhost");
+  let url; try { url = new URL(q.url || "/", "http://localhost"); } catch (e) { r.writeHead(400); return r.end(); }
   if (url.pathname.startsWith("/api/")) return api(q, r, url);
   if (q.method !== "GET" && q.method !== "HEAD") { r.writeHead(405); return r.end(); }
   if (url.pathname === "/logo.png") { // 로고 이미지 (배경 투명)
@@ -175,7 +206,8 @@ http.createServer((q, r) => {
     return fs.createReadStream(LOGO).on("error", () => r.destroy()).pipe(r);
   }
   if (url.pathname !== "/" && url.pathname !== "/kkondae.html") { r.writeHead(404); return r.end("404"); }
-  r.writeHead(200, { "Content-Type": "text/html;charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+  r.writeHead(200, { "Content-Type": "text/html;charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'" });
   if (q.method === "HEAD") return r.end();
   fs.createReadStream(FILE).on("error", () => r.destroy()).pipe(r);
 }).listen(PORT, HOST, () => console.log("http://localhost:" + PORT));
+process.on("uncaughtException", e => console.error("uncaught:", e));

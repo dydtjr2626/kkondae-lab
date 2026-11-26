@@ -437,7 +437,7 @@ const PACKS = {
 
 const $app = document.getElementById('app');
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const tierOf = pct => TIERS.filter(t=>pct>=t[0]).pop()[1];
+const tierOf = pct => (TIERS.filter(t=>pct>=t[0]).pop()||TIERS[0])[1];
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const ssGet=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}};
@@ -526,7 +526,8 @@ const S = {db:null,uid:null,name:lsGet('kd-name')||'',room:'',players:[],msgs:[]
   tab:'test',unread:false,err:'',lastCount:0,ready:false,subs:[],cd:null,timer:null,seenKey:null,countKey:null,peek:false,
   skip:false,mq:{i:Math.floor(Math.random()*SLANG.length),a:null,n:0,ok:0},tip:Math.floor(Math.random()*TIPS.length),postedKey:null,lastHtml:null,revealAt:null,detOpen:false,nextPack:null,lastMsgId:null,codeIn:null,packIn:null};
 
-const pack = ()=>PACKS[(S.meta&&PACKS[S.meta.pack]?S.meta.pack:'work')];
+const packKey = () => S.meta && Object.prototype.hasOwnProperty.call(PACKS, S.meta.pack) ? S.meta.pack : 'work';
+const pack = ()=>PACKS[packKey()];
 /* ===== 문제 뽑기: 방의 seed로 12문항을 뽑고 순서를 섞음 (두 사람이 같은 seed라서 같은 문제가 나와요) ===== */
 const PICK=12; /* 문제 풀(24개) 중 매번 무작위로 12개만 출제, 나머지는 이번엔 안 나옴 */
 const rng=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
@@ -537,9 +538,10 @@ function buildQ(pool,seed){
   return out;
 }
 let _qc={k:null,v:[]};
-const Q = ()=>{const key=S.meta&&PACKS[S.meta.pack]?S.meta.pack:'work', seed=(S.meta&&S.meta.seed)||round(), k=key+':'+seed; if(_qc.k!==k) _qc={k,v:buildQ(PACKS[key].q,seed)}; return _qc.v};
+const Q = ()=>{const key=packKey(), seed=(Number.isFinite(+(S.meta&&S.meta.seed))&&+(S.meta&&S.meta.seed)?Math.round(+S.meta.seed):round()), k=key+':'+seed; if(_qc.k!==k) _qc={k,v:buildQ(PACKS[key].q,seed)}; return _qc.v};
 const newSeed=()=>Math.floor(Math.random()*1e9)+1;
-const round = ()=>(S.meta&&S.meta.round)||1;
+const clampRound = v => Math.min(1000, Math.max(1, Number.isFinite(+v)&&v!==''&&v!=null ? Math.round(+v) : 1));
+const round = () => clampRound(S.meta && S.meta.round);
 const maxScore = ()=>Q().length*3;
 const pRound = p=>p.round||1;
 const isDone = p=>!!p&&p.done&&pRound(p)===round();
@@ -593,7 +595,7 @@ async function join(code,packKey,keep){
     if(ids.length>=2 && !ids.includes(S.uid)){S.err='이미 두 명이 들어와 있는 방이에요. 다른 코드를 써 주세요.';S.room='';render();return}
     let mt = await metaRef().get();
     if(!mt.exists){ await metaRef().set({round:1,pack:PACKS[packKey]?packKey:'work',seed:newSeed()}); }
-    const r = mt.exists ? (mt.data().round||1) : 1;
+    const r = mt.exists ? clampRound(mt.data().round) : 1;
     let nm=S.name.trim().replace(/\s+/g,' ').slice(0,12);
     if(act.some(d=>d.id!==S.uid && (d.data().name||'')===nm)) nm=nm.slice(0,11)+'2'; /* 이름이 같으면 구분되게 */
     const mine = await roomRef().doc(S.uid).get();
@@ -654,7 +656,7 @@ function checkReveal(){
 const num=v=>v==null||v===''?null:(Number.isFinite(+v)?Math.round(+v):0);
 const numArr=a=>Array.isArray(a)?a.map(v=>num(v)):[];
 function cleanPlayer(p){
-  p.name=maskBad(String(p.name==null?'':p.name)); p.pct=num(p.pct); p.guessSelf=num(p.guessSelf); p.guessOther=num(p.guessOther);
+  p.name=maskBad(String(p.name==null?'':p.name)); p.pct=num(p.pct); if(p.pct!=null) p.pct=Math.min(100,Math.max(0,p.pct)); p.guessSelf=num(p.guessSelf); p.guessOther=num(p.guessOther);
   p.progress=num(p.progress)||0; p.round=num(p.round)||1; p.doneAt=num(p.doneAt);
   p.scores=numArr(p.scores); p.guesses=numArr(p.guesses); p.joinedAt=num(p.joinedAt)||0;
   if(!p.hist||typeof p.hist!=='object') p.hist={}; else for(const k in p.hist) p.hist[k]=num(p.hist[k]);
@@ -664,7 +666,7 @@ function subscribe(){
   S.subs.forEach(u=>u());S.subs=[];
   S.subs.push(metaRef().onSnapshot(s=>{
     if(!s.exists) return;
-    const nm=s.data(), changed=S.meta && (nm.round||1)!==round();
+    const nm=s.data(); nm.round=clampRound(nm.round); const changed=S.meta && nm.round!==round();
     S.meta=nm;
     if(changed){
       resetLocal();
@@ -674,7 +676,7 @@ function subscribe(){
     render();
   },e=>{S.err='연결이 끊겼어요 ('+e.code+')';render()}));
   S.subs.push(roomRef().onSnapshot(s=>{
-    S.players=s.docs.map(d=>cleanPlayer({id:d.id,...d.data()})).filter(p=>!p.gone).sort((a,b)=>a.joinedAt-b.joinedAt);
+    S.players=s.docs.map(d=>cleanPlayer({...d.data(),id:d.id})).filter(p=>!p.gone).sort((a,b)=>a.joinedAt-b.joinedAt);
     const m=me(); if(m && isDone(m) && S.step<Q().length){S.step=Q().length;S.answers=m.scores||[];S.guesses=m.guesses||[]}
     /* 새로고침 등으로 풀이 도중 끊겼으면 저장해 둔 지점부터 이어서 */
     else if(m && !isDone(m) && !S.inQuiz && S.step===0 && pRound(m)===round() && m.progress>0 && (m.scores||[]).length===m.progress && m.progress<Q().length){
@@ -685,7 +687,7 @@ function subscribe(){
     render();
   },e=>{S.err='연결이 끊겼어요 ('+e.code+')';render()}));
   S.subs.push(msgRef().orderBy('t','desc').limit(200).onSnapshot(s=>{
-    S.msgs=s.docs.map(d=>({id:d.id,...d.data()})).reverse(); /* 최신 200개를 시간순으로 */
+    S.msgs=s.docs.map(d=>({...d.data(),id:d.id})).reverse(); /* 최신 200개를 시간순으로 */
     const last=S.msgs[S.msgs.length-1];
     if(last && S.lastMsgId && last.id!==S.lastMsgId && S.tab!=='chat' && last.uid!==S.uid) S.unread=true;
     S.lastMsgId=last?last.id:S.lastMsgId;
@@ -731,7 +733,7 @@ async function pickGuess(g){
 }
 async function nextRound(packKey){
   const from=round(); /* 두 사람이 동시에 눌러도 한 라운드만 오르도록: 눌렀을 때의 라운드가 그대로일 때만 올림 */
-  try{const cur=await metaRef().get(); if(cur.exists&&(cur.data().round||1)!==from) return; await metaRef().update({round:from+1,pack:PACKS[packKey]?packKey:'work',seed:newSeed()})}catch(e){toast('시작하지 못했어요')}
+  try{const cur=await metaRef().get(); if(cur.exists&&clampRound(cur.data().round)!==from) return; await metaRef().update({round:from+1,pack:PACKS[packKey]?packKey:'work',seed:newSeed()})}catch(e){toast('시작하지 못했어요')}
 }
 /* ============ 비속어 필터 ============
    욕설·패드립·성희롱·혐오 표현은 채팅에서 ***로 가려져요. 단어는 BAD_WORDS에서 추가/삭제하세요.
@@ -957,7 +959,7 @@ function roomView(){
   <div class="top"><h1 class="brand"><img class="logo" src="logo.png" alt="꼰대연구소" width="160" height="56"></h1>
     <div class="row" style="flex:none"><span class="chip">방 코드 <b>${esc(S.room)}</b><button class="btn ghost small" id="copy">복사</button></span><button class="btn ghost small" id="leave">나가기</button></div></div>
   ${S.err?`<div class="err">${esc(S.err)}</div>`:''}
-  <div class="metaline"><span>${round()}회차</span><span>주제 ${esc(pack().name)}</span>${cr&&(cr[0]||cr[1])?`<span>꼰대력 더 높았던 횟수 ${esc(S.players[0].name)} ${cr[0]} : ${cr[1]} ${esc(S.players[1].name)}</span>`:''}</div>
+  <div class="metaline"><span>${esc(round())}회차</span><span>주제 ${esc(pack().name)}</span>${cr&&(cr[0]||cr[1])?`<span>꼰대력 더 높았던 횟수 ${esc(S.players[0].name)} ${cr[0]} : ${cr[1]} ${esc(S.players[1].name)}</span>`:''}</div>
   <div class="players">${ps}</div>
   <div class="tabs" role="tablist"><button role="tab" data-tab="test" aria-selected="${S.tab==='test'}">테스트</button>
     <button role="tab" data-tab="chat" aria-selected="${S.tab==='chat'}">채팅${S.unread?'<span class="dot"></span>':''}</button></div>
@@ -972,7 +974,7 @@ function roomView(){
 
 function certBlock(p,animate){
   const pct=p.pct, ty=typeOf(p.scores||[],pct);
-  return `<div class="cert"><div class="qno">꼰대 인증서 · ${round()}회차</div>
+  return `<div class="cert"><div class="qno">꼰대 인증서 · ${esc(round())}회차</div>
     <div class="stamp ${animate?'slam':''}">${esc(tierOf(pct))}</div>
     <div class="type">${esc(ty)}</div>
     <div class="oneliner">${esc(TIERLINE[tierIdx(pct)])}</div>
