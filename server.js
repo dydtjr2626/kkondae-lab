@@ -7,6 +7,8 @@ const http = require("http"), fs = require("fs"), path = require("path"), crypto
 const PORT = Number(process.env.PORT) || 2500, HOST = process.env.HOST || (process.env.PORT ? "0.0.0.0" : "127.0.0.1"); // 배포 환경(PORT 지정)에서는 외부 접속 허용
 const FILE = path.join(__dirname, "kkondae.html");
 const LOGO = path.join(__dirname, "logo.png");
+const IMAGES = path.join(__dirname, "images");
+const SOUNDS = path.join(__dirname, "sounds");
 const DATA = path.join(__dirname, "data.json"); // 방 데이터 저장 파일 (서버를 껐다 켜도 남아 있음)
 
 // 컬렉션은 rooms/방코드/(players|msgs|meta) 형식만, 문서 id는 안전한 문자만 허용
@@ -42,10 +44,9 @@ function notify(room) {
 const WAIT_MS = 120000, MATCH_MS = 300000, PACKS = ["work", "school", "family"];
 const queue = [];           // { uid, pack, t } 기다리는 사람
 const matched = new Map();  // uid -> { room, t } 짝이 정해졌지만 아직 알려주지 않은 사람
-const CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 function newRoomCode() {
   for (;;) {
-    const code = Array.from(crypto.randomBytes(6), b => CODE_CHARS[b % CODE_CHARS.length]).join("");
+    const code = String(crypto.randomInt(10000)).padStart(4, "0"); // 숫자 4자리
     if (!db["rooms/" + code + "/meta"]) return code;
   }
 }
@@ -204,6 +205,26 @@ http.createServer((q, r) => {
     r.writeHead(200, { "Content-Type": "image/png", "Cache-Control": "public, max-age=3600", "X-Content-Type-Options": "nosniff" });
     if (q.method === "HEAD") return r.end();
     return fs.createReadStream(LOGO).on("error", () => r.destroy()).pipe(r);
+  }
+  const im = /^\/images\/([a-z_]{1,24})\.webp$/.exec(url.pathname); // 삼국지 인물 이미지 (영문 소문자·밑줄 파일명만 허용)
+  if (im) {
+    const file = path.join(IMAGES, im[1] + ".webp");
+    return fs.stat(file, (e, st) => {
+      if (e || !st.isFile()) { r.writeHead(404); return r.end("404"); } // 없는 이미지(예: 아직 없는 배경)는 깔끔하게 404
+      r.writeHead(200, { "Content-Type": "image/webp", "Content-Length": st.size, "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff" });
+      if (q.method === "HEAD") return r.end();
+      fs.createReadStream(file).on("error", () => r.destroy()).pipe(r);
+    });
+  }
+  const sn = /^\/sounds\/([a-z]{1,20})\.mp3$/.exec(url.pathname); // 효과음 (영문 소문자 파일명만 허용)
+  if (sn) {
+    const file = path.join(SOUNDS, sn[1] + ".mp3");
+    return fs.stat(file, (e, st) => {
+      if (e || !st.isFile()) { r.writeHead(404); return r.end("404"); }
+      r.writeHead(200, { "Content-Type": "audio/mpeg", "Content-Length": st.size, "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff" });
+      if (q.method === "HEAD") return r.end();
+      fs.createReadStream(file).on("error", () => r.destroy()).pipe(r);
+    });
   }
   if (url.pathname !== "/" && url.pathname !== "/kkondae.html") { r.writeHead(404); return r.end("404"); }
   r.writeHead(200, { "Content-Type": "text/html;charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'" });

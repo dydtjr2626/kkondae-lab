@@ -184,10 +184,14 @@ label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute
 .cert:has(.stamp.slam){animation:thud .45s calc(.5s - var(--el,0s)) both}
 @keyframes thud{0%{transform:none}30%{transform:translate(2px,3px) scale(.995)}60%{transform:translate(-2px,-1px)}100%{transform:none}}
 .stamp{position:relative;align-self:center;margin:10px 0 4px;border:4px solid var(--stamp);outline:2px solid var(--stamp);outline-offset:3px;color:var(--stamp);border-radius:12px;padding:8px 20px;
-  font-family:var(--font-display);font-size:28px;line-height:1.2;text-align:center;transform:rotate(-3deg);background:var(--stamp-soft);overflow-wrap:anywhere;text-wrap:balance}
-.stamp.slam{animation:slam .55s calc(0s - var(--el,0s)) cubic-bezier(.2,1.4,.4,1) both}
+  font-family:var(--font-display);font-size:28px;line-height:1.2;text-align:center;transform:rotate(-3deg);background:var(--stamp-soft);overflow-wrap:anywhere;text-wrap:balance;filter:url(#inkrough)}
+.stamp.slam{animation:slam .55s calc(0s - var(--el,0s)) linear both}
 .stamp.slam::after{content:"";position:absolute;inset:-6px;border-radius:16px;border:3px solid var(--stamp);opacity:0;animation:ring .7s calc(.45s - var(--el,0s)) ease-out both}
-@keyframes slam{0%{transform:rotate(-12deg) scale(2.6);opacity:0}70%{opacity:1}100%{transform:rotate(-3deg) scale(1);opacity:1}}
+/* 위에서 떨어져(0~.45초) 종이에 닿는 순간 살짝 눌렸다가 튕겨 올라요 */
+@keyframes slam{0%{transform:rotate(-14deg) scale(3.2);opacity:0;animation-timing-function:ease-in}30%{opacity:1}82%{transform:rotate(-3deg) scale(.9);opacity:1;animation-timing-function:ease-out}92%{transform:rotate(-3deg) scale(1.06)}100%{transform:rotate(-3deg) scale(1);opacity:1}}
+.stamp.slam::before{content:"";position:absolute;inset:-16px -22px;pointer-events:none;opacity:0;animation:splat .55s calc(.45s - var(--el,0s)) ease-out both;
+  background:radial-gradient(circle at 2% 18%,var(--stamp) 0 2.5px,transparent 3.5px),radial-gradient(circle at 10% 92%,var(--stamp) 0 2px,transparent 3px),radial-gradient(circle at 30% 2%,var(--stamp) 0 2px,transparent 3px),radial-gradient(circle at 52% 99%,var(--stamp) 0 3px,transparent 4px),radial-gradient(circle at 74% 1%,var(--stamp) 0 2.5px,transparent 3.5px),radial-gradient(circle at 93% 85%,var(--stamp) 0 2px,transparent 3px),radial-gradient(circle at 99% 30%,var(--stamp) 0 3px,transparent 4px),radial-gradient(circle at 88% 6%,var(--stamp) 0 1.5px,transparent 2.5px)}
+@keyframes splat{0%{opacity:0;transform:scale(.7)}25%{opacity:.9}100%{opacity:0;transform:scale(1.18)}}
 @keyframes ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.35,1.7);opacity:0}}
 .big{font-family:var(--font-display);font-size:68px;line-height:1;text-align:center;margin-top:4px;font-variant-numeric:tabular-nums}
 .big small{font-size:26px;margin-left:2px;color:var(--muted)}
@@ -274,6 +278,138 @@ summary{cursor:pointer;font-weight:700;list-style-position:inside}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:20;
   max-width:calc(100vw - 32px);text-align:center;box-shadow:0 10px 24px -8px rgba(0,0,0,.5);animation:toast 2.2s both}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,12px)}8%{opacity:1;transform:translate(-50%,0)}86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,6px)}}
+/* 삼국지 인물 카드 + 일기토 */
+.hero{display:flex;flex-direction:column;align-items:center;gap:8px;margin:2px 0}
+.hero-img{display:block;height:200px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 8px 6px rgba(20,33,61,.28))}
+.hero-plate{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:4px 8px;padding:6px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-family:'Noto Sans KR',sans-serif;font-weight:900;font-size:18px;line-height:1.3;word-break:keep-all;box-shadow:var(--shadow)}
+.hero-plate small{font-size:12.5px;font-weight:500;opacity:.8}
+.hero-say{font-size:14px;font-weight:700;text-align:center;text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;max-width:30em}
+.hero.enter .hero-img{animation:hero-in .6s calc(.75s - var(--el,0s)) cubic-bezier(.2,1.2,.4,1) both}
+.hero.enter .hero-plate{animation:pop .45s calc(1.2s - var(--el,0s)) cubic-bezier(.2,1.5,.4,1) both}
+.hero.enter .hero-say{animation:vs-in .4s calc(1.5s - var(--el,0s)) both}
+@keyframes hero-in{from{opacity:0;transform:translateX(-44px) scale(.9)}}
+
+.duel{gap:10px}
+.duel-hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.duel-sub{margin:-4px 0 0;font-size:13px;color:var(--muted)}
+.duel-top{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.vsm{align-self:center;font-family:var(--font-display);font-size:22px;color:var(--stamp)}
+.dp{--c:#7ca2ff;min-width:0;display:flex;flex-direction:column;gap:3px;padding:8px 10px 9px;background:#14214d;color:#f6f1dc;border:3px solid #e8dfb8;outline:2px solid #14214d;box-shadow:inset 0 0 0 2px #0a1030;border-radius:4px}
+.dp.B{--c:#4fd1a8}
+.dp .dn{font-family:'Noto Sans KR',sans-serif;font-weight:900;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.dp .dn::before{content:"";display:inline-block;width:9px;height:9px;margin-right:6px;background:var(--c);border-radius:2px}
+.dp .dt{font-size:11.5px;line-height:1.35;opacity:.85;word-break:keep-all}
+.dp .dg{height:11px;background:#0a1030;border:1px solid #e8dfb8}
+.dp .dg i{display:block;height:100%;width:var(--w);background:linear-gradient(#ffe27a,#f2a100)}
+.dp .dv{font-family:'Noto Sans KR',sans-serif;font-weight:900;font-size:20px;line-height:1;text-align:right}
+.arena{--sh:200px;--sw:calc(var(--sh)*.923);container-type:inline-size;position:relative;height:calc(var(--sh) + 100px);overflow:hidden;border:3px solid var(--ink);border-radius:var(--r);background:linear-gradient(#5fb0ec,#d5f0ff 62%)}
+.arena>*{position:absolute}
+.arena::before{content:"";position:absolute;z-index:1;left:0;right:0;bottom:0;height:34%;background:repeating-linear-gradient(90deg,#6fb04a 0 28px,#7cbf55 28px 56px);border-top:4px solid #4d8a35}
+.arena::after{content:"";position:absolute;z-index:0;left:0;right:0;bottom:34%;height:24%;background:#97cf72;clip-path:polygon(0 100%,0 55%,12% 30%,26% 60%,40% 20%,58% 62%,74% 28%,88% 58%,100% 35%,100% 100%)}
+.spr{bottom:7%;width:var(--sw);z-index:2}
+.spr.A{left:calc(25% - var(--sw)/2);--dir:-1;--f:1;--chg:calc(25cqw - var(--sw)*.4)}
+.spr.B{left:calc(75% - var(--sw)/2);--dir:1;--f:-1;--chg:calc(var(--sw)*.4 - 25cqw)}
+.spr .fx,.spr .bd,.spr .br{transform-origin:50% 94%}
+.spr .br{position:relative}
+.spr .br .pf{position:absolute;left:-16.63%;bottom:0;width:133.25%;height:calc(var(--sh)*1.1404);opacity:0;pointer-events:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.18))} /* 준비·베기 그림은 기본 그림보다 캔버스가 커서 발 위치를 맞춰 겹쳐요 */
+.spr img{display:block;width:100%;height:var(--sh);object-fit:contain;filter:drop-shadow(0 4px 0 rgba(0,0,0,.18))}
+.spr.lose .fx{transform:translateX(calc(var(--dir)*-10%)) rotate(calc(var(--dir)*52deg));filter:grayscale(.75) brightness(.85)}
+.spr.win .fx{transform:scale(1.07);filter:drop-shadow(0 0 10px #ffd54a)}
+.flash{inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6}
+.has-arena .arena{background:url(images/arena.webp) 65% bottom/cover no-repeat} /* images/arena.webp 가 있으면 배경으로 쓰고, 없으면 아래 기본 풍경을 써요 */
+.has-arena .arena::before,.has-arena .arena::after{display:none}
+.impact{left:50%;top:58%;width:calc(var(--sh)*1.2);height:auto;transform:translate(-50%,-50%);opacity:0;pointer-events:none;z-index:4}
+.impact.i2{width:calc(var(--sh)*.85);z-index:3}
+.impact.i3{width:calc(var(--sh)*.5);top:58%;z-index:4}
+/* 칼 휘두르는 궤적(초승달 모양 빛줄기). A는 왼쪽에서, B는 오른쪽에서 중앙 쪽으로 베어요 */
+.slash{top:calc(var(--sh)*.36);width:calc(var(--sh)*.8);height:calc(var(--sh)*.8);overflow:visible;opacity:0;pointer-events:none;z-index:4;fill:none;stroke-linecap:butt}
+.slash.A{left:calc(33cqw - var(--sh)*.3)} .slash.B{right:calc(33cqw - var(--sh)*.3);transform:scaleX(-1)}
+.slash.s1{width:calc(var(--sh)*.6);height:calc(var(--sh)*.6);top:calc(var(--sh)*.55)}
+.slash path{stroke-dasharray:46 300;stroke-dashoffset:50}
+.slash .g{stroke:#ffb21f;stroke-width:11;opacity:.75}
+.slash .w{stroke:#fff;stroke-width:4}
+.sp{left:50%;top:58%;width:7px;height:7px;margin:-3px 0 0 -3px;background:var(--c);opacity:0;z-index:5}
+.bub{top:6px;max-width:46%;padding:7px 10px;border-radius:12px;background:#fff;color:#14213d;border:2px solid #14213d;font-size:13px;font-weight:700;line-height:1.35;opacity:0;word-break:keep-all;overflow-wrap:anywhere;z-index:5;box-shadow:2px 3px 0 rgba(20,33,61,.25)}
+.bub::after{content:"";position:absolute;bottom:-9px;width:12px;height:12px;background:#fff;border-right:2px solid #14213d;border-bottom:2px solid #14213d;transform:rotate(45deg)}
+.bub.A{left:3%} .bub.A::after{left:calc(25cqw - 3% - 6px)}
+.bub.B{right:3%} .bub.B::after{right:calc(25cqw - 3% - 6px)}
+.banner{left:50%;top:12%;transform:translateX(-50%);font-family:var(--font-display);font-size:30px;line-height:1.1;color:#fff;-webkit-text-stroke:2px #14213d;paint-order:stroke fill;text-shadow:2px 3px 0 #14213d;opacity:0;white-space:nowrap;z-index:5}
+.duel-res{display:flex;flex-direction:column;gap:3px;text-align:center;padding:14px 16px;border-radius:var(--r);background:var(--ink);color:var(--bg);box-shadow:var(--shadow);word-break:keep-all;overflow-wrap:anywhere}
+.duel-res .rt{font-family:var(--font-display);font-size:24px;line-height:1.25}
+.duel-res .sub{font-size:13.5px;font-weight:700;opacity:.9}
+.duel-res .say{font-size:13px;opacity:.8}
+/* 아직 시작 전: 결과를 미리 보여주지 않아요 */
+.duel.idle .duel-res{visibility:hidden}
+.duel.idle .dg i{width:0}
+.duel.idle .dv{visibility:hidden}
+.duel.idle .spr .fx{transform:none;filter:none}
+.duel.idle .slash,.duel.idle .impact{display:none}
+.duel.done .spr .pb{opacity:0} .duel.done .spr .ps{opacity:1} /* 끝난 뒤에는 벤 자세 그대로 */
+/* 재생 중: 모든 단계가 --el(지난 시간)만큼 앞당겨져 있어서, 중간에 화면이 다시 그려져도 이어서 재생돼요 */
+.duel.fight .spr .br{animation:dbob .72s calc(0s - var(--el,0s)) ease-in-out 9 both}
+.duel.fight .spr .bd{animation:dswing 3s calc(5.4s - var(--el,0s)) ease-in-out both}
+.duel.fight .spr .pb{animation:dfb 3s calc(5.4s - var(--el,0s)) linear both}
+.duel.fight .spr .pw{animation:dfw 3s calc(5.4s - var(--el,0s)) linear both}
+.duel.fight .spr .ps{animation:dfs 3s calc(5.4s - var(--el,0s)) linear both}
+.duel.fight .slash.s1{opacity:1}
+.duel.fight .slash.s1 path{animation:dslash .32s calc(5.97s - var(--el,0s)) ease-out both}
+.duel.fight .slash.s2{opacity:1}
+.duel.fight .slash.s2 path{animation:dslash .3s calc(7s - var(--el,0s)) ease-in both}
+.duel.fight .impact.i3{animation:dimpact3 .36s calc(6.06s - var(--el,0s)) ease-out both}
+.duel.fight .spr{animation:dsp 10.6s calc(0s - var(--el,0s)) ease-in-out both}
+.duel.fight .spr.lose .fx{animation:dlose 1.26s calc(8s - var(--el,0s)) cubic-bezier(.2,.8,.3,1) both}
+.duel.fight .spr.win .fx{animation:dwin 1.12s calc(8.7s - var(--el,0s)) ease-out both}
+.duel.fight .dg i{animation:dgfill 1.26s calc(1.12s - var(--el,0s)) cubic-bezier(.2,.8,.2,1) both}
+.duel.fight .dv{animation:dvfade .42s calc(2.1s - var(--el,0s)) both}
+.duel.fight .banner{animation:dbanner 1.82s calc(5.18s - var(--el,0s)) both}
+.duel.fight .flash{animation:dflash .49s calc(8s - var(--el,0s)) both}
+.duel.fight .impact{animation:dimpact .84s calc(8s - var(--el,0s)) ease-out both}
+.duel.fight .impact.i2{animation:dimpact2 .77s calc(8.1s - var(--el,0s)) ease-out both}
+.duel.fight .sp{animation:dspark .91s calc(8s - var(--el,0s)) ease-out both}
+.duel.fight .bub.A{animation:dbub 2.24s calc(1.12s - var(--el,0s)) both}
+.duel.fight .bub.B{animation:dbub 2.1s calc(3.22s - var(--el,0s)) both}
+.duel.fight .arena{animation:dshake .63s calc(8s - var(--el,0s)) both}
+.duel.fight .duel-res{animation:dres .7s calc(10s - var(--el,0s)) both}
+@keyframes dsp{0%{transform:translateX(calc(var(--dir)*70%));opacity:0}5.7%{transform:none;opacity:1}62.8%{transform:none}71.7%,75.5%{transform:translateX(var(--chg))}86.8%{transform:translateX(calc(var(--dir)*-6%))}100%{transform:none}}
+@keyframes dbob{0%,100%{transform:none}50%{transform:translateY(-2.5%) scaleY(1.012)}}
+@keyframes dswing{0%,5%{transform:none}16%{transform:translateX(calc(var(--f)*-2%))}22%{transform:translateX(calc(var(--f)*5%))}32%{transform:none}37%,53%{transform:translateX(calc(var(--f)*-5%))}60%{transform:translateX(calc(var(--f)*4%))}100%{transform:translateX(calc(var(--f)*2%))}}
+/* 자세 바꾸기: 기본 → 준비(5.55s) → 베기(5.9s) → 기본(6.3s) → 큰 준비(6.5s) → 큰 베기(7.0s~끝) */
+@keyframes dfb{0%,4.99%{opacity:1}5%,29.99%{opacity:0}30%,36.66%{opacity:1}36.67%,100%{opacity:0}}
+@keyframes dfw{0%,4.99%{opacity:0}5%,16.66%{opacity:1}16.67%,36.66%{opacity:0}36.67%,53.32%{opacity:1}53.33%,100%{opacity:0}}
+@keyframes dfs{0%,16.66%{opacity:0}16.67%,29.99%{opacity:1}30%,53.32%{opacity:0}53.33%,100%{opacity:1}}
+@keyframes dslash{0%{stroke-dashoffset:50}100%{stroke-dashoffset:-110;opacity:.2}}
+@keyframes dimpact3{0%{opacity:0;transform:translate(-50%,-50%) rotate(-20deg) scale(.2)}25%{opacity:1;transform:translate(-50%,-50%) rotate(-20deg) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(-20deg) scale(1.25)}}
+@keyframes dlose{0%{transform:translateX(0) rotate(0deg);filter:none}30%{transform:translateX(0) rotate(calc(var(--dir)*-8deg));filter:brightness(2)}100%{transform:translateX(calc(var(--dir)*-10%)) rotate(calc(var(--dir)*52deg));filter:grayscale(.75) brightness(.85)}}
+@keyframes dwin{0%{transform:none;filter:none}40%{transform:translateY(-12%) scale(1.12)}100%{transform:scale(1.07);filter:drop-shadow(0 0 10px #ffd54a)}}
+@keyframes dgfill{from{width:0}}
+@keyframes dvfade{from{opacity:0}}
+@keyframes dbanner{0%{opacity:0;transform:translateX(-50%) scale(.5)}20%{opacity:1;transform:translateX(-50%) scale(1.12)}30%{transform:translateX(-50%) scale(1)}80%{opacity:1}100%{opacity:0}}
+@keyframes dflash{0%{opacity:0}15%{opacity:.85}100%{opacity:0}}
+@keyframes dimpact{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}16%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}55%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}}
+@keyframes dimpact2{0%{opacity:0;transform:translate(-50%,-50%) rotate(35deg) scale(.2)}20%{opacity:.9;transform:translate(-50%,-50%) rotate(35deg) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(35deg) scale(1.35)}}
+@keyframes dspark{0%{opacity:0;transform:translate(0,0)}12%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.4)}}
+@keyframes dbub{0%{opacity:0;transform:translateY(6px) scale(.9)}12%{opacity:1;transform:none}88%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes dshake{0%,100%{transform:none}15%{transform:translate(-6px,3px)}30%{transform:translate(6px,-3px)}45%{transform:translate(-4px,2px)}60%{transform:translate(3px,-2px)}80%{transform:translate(-1px,1px)}}
+@keyframes dres{from{opacity:0;transform:translateY(8px)}}
+/* 카운트다운 뒤 화면 앞에 크게 뜨는 일기토 */
+.duel-ov{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:12px;background:rgba(8,12,28,.88);overflow:auto;animation:ov-in .3s both}
+.duel-ov .ov-card{width:min(100%,680px);display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:var(--r);background:var(--paper);box-shadow:0 20px 60px -10px rgba(0,0,0,.7)}
+.wrap:has(.duel-ov) .result{visibility:hidden} /* 일기토가 끝나기 전에는 뒤의 결과가 비쳐 보이지 않게 */
+.duel-ov .duel{display:flex;flex-direction:column;gap:10px}
+.duel-ov .arena{--sh:230px}
+.duel-ov #duelclose{font-size:16px;padding:13px 18px}
+.btn.attn{border-color:var(--stamp);color:var(--stamp);animation:pulse 1.4s ease-in-out infinite}
+@keyframes ov-in{from{opacity:0}}
+@media (max-width:480px){
+  .duel-ov .arena{--sh:165px}
+  .duel-ov .ov-card{padding:12px}
+  .hero-img{height:170px}
+  .arena{--sh:150px}
+  .banner{font-size:24px} .bub{font-size:12px;padding:6px 8px}
+  .dp{padding:6px 7px 7px} .dp .dn{font-size:13.5px} .dp .dt{font-size:10.5px} .dp .dv{font-size:17px}
+  .vsm{font-size:17px} .duel-top{gap:5px}
+  .duel-res .rt{font-size:21px}
+}
 @media (min-width:821px){.chat{position:sticky;top:16px}}
 @media (max-width:820px){
   .tabs{display:flex}
@@ -316,6 +452,15 @@ summary{cursor:pointer;font-weight:700;list-style-position:inside}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <!-- 도장 잉크: 가장자리가 살짝 울퉁불퉁하고 군데군데 잉크가 덜 묻은 느낌 -->
+  <filter id="inkrough" x="-10%" y="-30%" width="120%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="3" result="w"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="3" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="1" seed="8" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3.2 2.8" result="m"/>
+    <feComposite in="d" in2="m" operator="in"/>
+  </filter></defs></svg>
 <div class="wrap" id="app"></div>
 
 <script>
@@ -334,6 +479,27 @@ const TYPEINFO = {
  "라떼 설교형":"사람 하나에 라떼 한 잔. 조언은 묻기도 전에 먼저 도착해 있어요.",
  "서열 정리형":"나이와 학번이 곧 내비게이션. 수저 놓는 순서까지 기억하고 있어요."
 };
+/* 유형별 삼국지 인물. img: images/ 폴더의 파일 이름, face: 그림 속 인물이 기본으로 보는 방향(L 왼쪽 / R 오른쪽), say: 결과 카드 한마디, win: 일기토 승리 한마디 */
+const HERO = {
+ "자유로운 영혼형":{n:"유비",img:"liubei",face:"L",say:"형, 편한 대로 하세요. 퇴근도 먼저 하시고요.",win:"형, 이겨서 미안해요. 밥은 제가 살게요."},
+ "서열 정리형":{n:"관우",img:"guanyu",face:"L",say:"황충과 같은 반열이라니, 내 심기가 불편하구나.",win:"서열이 곧 법이니라. 물러서거라!"},
+ "모임 강제 참석형":{n:"장비",img:"zhangfei",face:"L",say:"내가 한잔 따를 테니 다들 와! 빠지면 정 떨어진다!",win:"안 오면 정 떨어진다고 했지! 술이나 한잔 받아라!"},
+ "시간 감시형":{n:"제갈량",img:"zhugeliang",face:"L",say:"지금 몇 시인지 아느냐. 칼퇴는 병법에 없느니라.",win:"지금 시각은 퇴근 3분 전. 모든 것이 계획대로다."},
+ "말투 단속반형":{n:"조조",img:"caocao",face:"L",say:"'ㅇㅋ'라… 그 두 글자의 속뜻이 무엇이냐.",win:"방금 그 말투, 수상하구나… 승부는 내 것이다."},
+ "라떼 설교형":{n:"황충",img:"huangzhong",face:"R",say:"내가 젊었을 땐 말이야. 나 아직 늙지 않았다!",win:"나 아직 늙지 않았다! 내가 젊었을 땐 말이야…"}
+};
+/* 일기토 시작 전에 서로 주고받는 한마디 (말풍선에 들어가서 짧게) */
+const ASK = {
+ liubei:"형, 다치지 않게 살살 하죠.",
+ guanyu:"나이와 서열부터 밝히거라!",
+ zhangfei:"한잔하고 붙자! 안 오면 정 떨어진다!",
+ zhugeliang:"퇴근 시간 전에 끝내도록 하지.",
+ caocao:"방금 그 말투… 무슨 뜻이냐?",
+ huangzhong:"내가 젊었을 땐 말이야! 아직 안 늙었다!"
+};
+(()=>{const im=new Image(); im.onload=()=>document.documentElement.classList.add('has-arena'); im.src='images/arena.webp'; new Image().src='images/impact.webp'})(); /* 배경 이미지가 있을 때만 켜져요 */
+const heroOf = ty => HERO[ty] || HERO["자유로운 영혼형"];
+const heroLabel = p => { const t=typeOf(p.scores||[],p.pct); return t+' ('+heroOf(t).n+')'; };
 const TIERLINE = ["요즘 감성 그 자체. 후배가 먼저 밥 먹자고 할 사람이에요.","가끔 라떼가 새어 나오지만 금방 주워 담는 유연한 사람이에요.","본인만 모르고 후배들은 이미 아는 라떼 한 모금이에요.","건배사가 3분을 넘기기 시작한 중견 꼰대예요.","라떼 무형문화재 후보. 역사책에 실릴 전설이에요."];
 const TIPS = ["평소 모습 그대로 골라야 더 웃겨요. 솔직하게!","'상대는 뭘 골랐을까'는 평소 말투를 떠올리면 잘 맞아요.","끝난 뒤엔 채팅으로 상대 선택에 시비를 걸어 보세요.","슬라이더 예상이 틀릴수록 결과 공개가 재밌어져요."];
 const SLANG = [
@@ -500,8 +666,8 @@ const RemoteDB=(()=>{
     doc:p=>{const i=p.lastIndexOf('/');return docRef(p.slice(0,i),p.slice(i+1))}
   };
 })();
-/* 방 코드: 헷갈리는 글자(I, L, O, 0, 1)를 뺀 6자리 */
-const newCode=()=>Array.from(crypto.getRandomValues(new Uint8Array(6)),b=>'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[b%31]).join('');
+/* 방 코드: 숫자 4자리 */
+const newCode=()=>String(crypto.getRandomValues(new Uint32Array(1))[0]%10000).padStart(4,'0');
 /* 탭마다 다른 사용자로 취급 (탭 2개를 열면 2명이 되어 채팅 테스트 가능) */
 const LocalUser={
   id:async()=>{let v=null;try{v=sessionStorage.getItem('kd-uid')}catch(e){}
@@ -569,8 +735,8 @@ const slot = p=>S.players.indexOf(p)===0?'A':'B';
 
 async function join(code,packKey,keep){
   S.err='';
-  code=code.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
-  if(code.length<3){S.err='방 코드는 3~6자의 영문·숫자로 입력해 주세요.';render();return}
+  code=code.replace(/[^0-9]/g,'').slice(0,4);
+  if(code.length!==4){S.err='방 코드는 숫자 4자리로 입력해 주세요.';render();return}
   if(!S.name.trim()){S.err='이름을 입력해 주세요.';render();return}
   if(maskBad(S.name)!==S.name){S.err='이름에 쓸 수 없는 표현이 들어 있어요. 다른 이름을 써 주세요.';render();return}  /* 비속어 이름은 입장 불가 */
   S.room=code;
@@ -635,7 +801,7 @@ const revealed = ()=>{const k=bothKey();return !!k&&S.seenKey===k};
 function checkReveal(){
   const k=bothKey(); if(!k||S.seenKey===k||S.countKey===k) return;
   S.countKey=k;S.cd=3;clearInterval(S.timer);
-  S.timer=setInterval(()=>{S.cd--;if(S.cd<=0){clearInterval(S.timer);S.cd=null;S.seenKey=k;S.revealAt=Date.now();postReveal(k)}render()},1000);
+  S.timer=setInterval(()=>{S.cd--;if(S.cd<=0){clearInterval(S.timer);S.cd=null;S.seenKey=k;S.revealAt=Date.now();startDuel();postReveal(k)}render()},1000);
 }
 
 /* 상대가 보낸 값은 믿지 않고 숫자·문자 형태로 정리한 뒤 화면에 쓴다 */
@@ -921,7 +1087,7 @@ function joinView(){
     <h2>나 <span class="hl">꼰대</span>야?<br>너 <span class="hl">꼰대</span>야?</h2>
     <div class="how"><span>① 내 선택</span><span>② 상대 맞히기</span><span>③ 동시 공개</span></div>
     <label>내 이름<input type="text" id="name" maxlength="12" value="${esc(S.name)}" placeholder="예: 김부장" autocomplete="off"></label>
-    <label>방 코드<input type="text" id="code" maxlength="6" value="${esc(S.codeIn!=null?S.codeIn:(S.room||''))}" placeholder="친구가 알려준 코드" autocomplete="off"></label>
+    <label>방 코드<input type="text" id="code" maxlength="4" inputmode="numeric" pattern="[0-9]*"value="${esc(S.codeIn!=null?S.codeIn:(S.room||''))}" placeholder="친구가 알려준 코드" autocomplete="off"></label>
     <label>주제 (새 방을 만들 때만 적용)<select id="pack">${packOptions(S.packIn||'work')}</select></label>
     <div class="row"><button class="btn" type="submit" ${ok?'':'disabled'}>입장하기</button>
     <button class="btn ghost" type="button" id="make" ${ok?'':'disabled'}>새 방 만들기</button><button class="btn ghost" type="button" id="rand" ${ok?'':'disabled'}>랜덤 채팅</button></div>
@@ -954,14 +1120,16 @@ function roomView(){
       <div class="log" id="log">${chatLog()}</div>
       <form class="send" id="sendForm"><input type="text" id="msg" maxlength="300" placeholder="메시지 입력" aria-label="메시지 입력" autocomplete="off"><button class="btn" type="submit">보내기</button></form>
     </section>
-  </div>`;
+  </div>${rev&&S.players.length>1?duelView(S.players[0],S.players[1],true):''}`;
 }
 
 function certBlock(p,animate){
-  const pct=p.pct, ty=typeOf(p.scores||[],pct);
+  const pct=p.pct, ty=typeOf(p.scores||[],pct), h=heroOf(ty);
   return `<div class="cert"><div class="qno">꼰대 인증서 · ${esc(round())}회차</div>
     <div class="stamp ${animate?'slam':''}">${esc(tierOf(pct))}</div>
-    <div class="type">${esc(ty)}</div>
+    <div class="hero ${animate?'enter':''}"><img class="hero-img" src="images/${h.img}.webp" alt="${esc(h.n)}" width="421" height="456">
+      <div class="hero-plate"><small>당신은</small><span>${esc(ty)} = ${esc(h.n)}!</span></div>
+      <div class="hero-say">“${esc(h.say)}”</div></div>
     <div class="oneliner">${esc(TIERLINE[tierIdx(pct)])}</div>
     <div class="desc">${esc(TYPEINFO[ty]||'')}</div>
     <div class="big">${pct}<small>%</small></div>
@@ -1026,6 +1194,200 @@ function vsTween(){
     el.textContent=f+'%';requestAnimationFrame(step);
   });
 }
+/* 일기토: 꼰대력이 더 높은 쪽이 이겨요. 시작은 화면에 보일 때(bind), 재생 중 다시 그려져도 --el로 이어서 재생해요 */
+const DUEL_T=11; /* 연출 전체 길이(초). CSS 연출 시간들도 이 비율(1.4배)에 맞춰져 있어요 */
+const duelKey=(a,b)=>round()+':'+a.pct+':'+b.pct;
+/* 카운트다운이 끝나면 일기토를 화면 앞에 크게 띄워요. 닫으면 그때부터 인증서 공개 연출이 시작돼요 */
+function startDuel(){
+  const [a,b]=S.players; if(!a||!b||a.pct==null||b.pct==null) return;
+  S.duel={k:duelKey(a,b),at:Date.now(),open:true,reveal:true,focus:true};
+}
+const fightingNow=()=>!!S.duel&&(Date.now()-S.duel.at)/1000<DUEL_T;
+/* 건너뛰기: 연출을 바로 끝 장면으로 보내요 (창은 그대로 두고 승패를 보여줘요) */
+function skipDuel(){
+  stopSfx();
+  if(S.duel) S.duel.at=Date.now()-(DUEL_T+.2)*1000;
+  S.lastHtml=null; render();
+}
+function closeDuel(){
+  stopSfx(); clearTimeout(S.duelEnd);
+  if(S.duel){S.duel.open=false; if(S.duel.reveal){S.duel.reveal=false;S.revealAt=Date.now()}}
+  render();
+}
+/* ----- 효과음: sounds 폴더의 파일을 재생해요 (🔊 버튼으로 끄고 켜요) ----- */
+let AC=null, MASTER=null;
+const sndOn=()=>lsGet('kd-snd')!=='0';
+function ac(){
+  try{
+    if(!AC){
+      const C=window.AudioContext||window.webkitAudioContext; if(!C) return null;
+      AC=new C();
+      /* 모든 소리는 마스터(볼륨 키움) → 컴프레서(찢어짐 방지) → 스피커 순서로 나가요 */
+      MASTER=AC.createGain(); MASTER.gain.value=1.2;
+      const comp=AC.createDynamicsCompressor(); /* 설정을 빡빡하게 해서 큰 소리가 한계를 넘지 않게 눌러 줘요(리미터) */
+      comp.threshold.value=-10; comp.knee.value=0; comp.ratio.value=20; comp.attack.value=.002; comp.release.value=.12;
+      MASTER.connect(comp); comp.connect(AC.destination); AC.limiter=comp;
+    }
+    if(AC.state!=='running') AC.resume().catch(()=>{});
+    return AC;
+  }catch(e){return null}
+}
+/* 브라우저는 터치·클릭 직후에만 소리를 허용해요(특히 아이폰). 소리가 켜질 때까지 터치할 때마다 계속 시도해요 */
+function unlockAudio(){
+  const c=ac(); if(!c) return;
+  c.resume().catch(()=>{}); loadSfx();
+  try{const s=c.createBufferSource(); s.buffer=c.createBuffer(1,1,22050); s.connect(c.destination); s.start(0)}catch(e){} /* 사파리용 무음 재생 */
+}
+['pointerdown','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{if(!AC||AC.state!=='running') unlockAudio()},{passive:true,capture:true}));
+/* 소리 파일(sounds 폴더). [파일, 볼륨] */
+const SND={
+  drums:['sounds/drums.mp3',.7],   /* 대결 시작 전 긴장감: 전쟁 북소리 */
+  bell:['sounds/bell.mp3',.55],    /* 대결 시작 신호: 편종 */
+  swing:['sounds/swing.mp3',.9],   /* 칼 휘두름 */
+  impact:['sounds/impact.mp3',1],  /* 칼 부딪힘 */
+  win:['sounds/win.mp3',.9],       /* 승리 */
+  draw:['sounds/draw.mp3',.9]      /* 무승부 */
+};
+const BUF={}, LIVE=[];
+function loadSfx(){
+  const c=ac(); if(!c) return;
+  Object.keys(SND).forEach(n=>{
+    if(BUF[n]!==undefined) return; BUF[n]=null;
+    fetch(SND[n][0]).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>c.decodeAudioData(b,ok,no)))
+      .then(buf=>{BUF[n]=buf}).catch(()=>{delete BUF[n]});
+  });
+}
+function play(name){
+  if(!sndOn()) return; const c=ac(); if(!c) return;
+  loadSfx(); const buf=BUF[name]; if(!buf) return;
+  try{
+    const s=c.createBufferSource(), g=c.createGain(); s.buffer=buf; g.gain.value=SND[name][1];
+    s.connect(g); g.connect(MASTER); s.start(c.currentTime+.01);
+    const it={s,g}; LIVE.push(it);
+    s.onended=()=>{const i=LIVE.indexOf(it); if(i>=0) LIVE.splice(i,1)};
+  }catch(e){}
+}
+/* 재생 중인 소리를 부드럽게 줄여서 멈춰요(북·종소리가 칼 소리와 겹치지 않게) */
+function hushSfx(sec){
+  const c=AC; if(!c) return;
+  LIVE.splice(0).forEach(({s,g})=>{try{g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+sec);s.stop(c.currentTime+sec+.02)}catch(e){}});
+}
+function stopSfx(){(S.sfxT||[]).forEach(clearTimeout);S.sfxT=[];hushSfx(.1)}
+/* 연출 속 시각(초)에 맞춰 소리를 예약해요. 화면이 다시 그려져도 한 번만 예약돼요 */
+function scheduleSfx(){
+  const d=S.duel; if(!d||d.sfx===d.at) return; d.sfx=d.at; stopSfx();
+  const el=(Date.now()-d.at)/1000, draw=(document.querySelector('.duel-ov .duel')||{dataset:{}}).dataset.w==='-1';
+  /* 한 번에 한 소리만 나도록, 다음 소리 직전에 앞 소리를 줄여서 끊어요(hush) */
+  S.sfxT=[[1.12,'drums'],[4.83,'hush',.3],[5.18,'bell'],[6.4,'hush',.3],[6.9,'swing'],[7.9,'hush',.1],[8,'impact'],[8.8,'hush',.1],[8.9,draw?'draw':'win']]
+    .filter(x=>x[0]>el).map(x=>setTimeout(()=>x[1]==='hush'?hushSfx(x[2]):play(x[1]),(x[0]-el)*1000));
+}
+function duelView(a,b,ov){
+  const k=duelKey(a,b), st=S.duel&&S.duel.k===k?S.duel.at:null;
+  if(ov&&(st==null||!S.duel.open)) return '';
+  const el=st==null?0:(Date.now()-st)/1000;
+  const mode=st==null?'idle':el<DUEL_T?'fight':'done';
+  const P=[a,b].map((p,i)=>{const t=typeOf(p.scores||[],p.pct);return {p,t,h:heroOf(t),L:i?'B':'A'}});
+  const win=a.pct>b.pct?0:a.pct<b.pct?1:-1;
+  const mirror=P[0].h===P[1].h, mtag=mirror?' · 거울 대결!':''; /* 같은 인물끼리 만나면 거울 대결 */
+  const panel=x=>`<div class="dp ${x.L}"><div class="dn">${esc(x.p.name)}</div><div class="dt">${esc(x.t)} · ${esc(x.h.n)}</div><div class="dg" style="--w:${x.p.pct}%"><i></i></div><div class="dv">${x.p.pct}%</div></div>`;
+  const spr=(x,i)=>{
+    const flip=x.L==='A'?x.h.face==='L':x.h.face==='R'; /* 왼쪽 사람은 오른쪽을, 오른쪽 사람은 왼쪽을 보게 */
+    const pflip=x.L==='B'?' style="transform:scaleX(-1)"':''; /* 준비·베기 그림은 모두 오른쪽을 보고 있어서, 오른쪽 사람만 뒤집어요 */
+    return `<div class="spr ${x.L}${win<0?'':win===i?' win':' lose'}"><div class="fx"><div class="bd"><div class="br"><img class="pb" src="images/${x.h.img}.webp" alt="${esc(x.h.n)}" width="421" height="456"${flip?' style="transform:scaleX(-1)"':''}><img class="pf pw" src="images/${x.h.img}_wind.webp" alt="" aria-hidden="true"${pflip}><img class="pf ps" src="images/${x.h.img}_slash.webp" alt="" aria-hidden="true"${pflip}></div></div></div></div>`;
+  };
+  const res=win<0
+    ?`<div class="rt">도원결의로 무승부!</div><div class="sub">꼰대력이 ${a.pct}%로 똑같아서 승부가 나지 않았어요.</div>`
+    :`<div class="rt">꼰대 대장 ${esc(P[win].h.n)} 승!</div><div class="sub">${mirror?`거울 대결 → ${esc(P[win].p.name)}님의 ${esc(P[win].h.n)} 승`:`${esc(P[win].h.n)} vs ${esc(P[1-win].h.n)} → ${esc(P[win].h.n)} 승`} · 꼰대력 ${P[win].p.pct}% vs ${P[1-win].p.pct}%</div><div class="say">“${esc(P[win].h.win)}”</div>`;
+  /* 부딪힐 때 사방으로 튀는 네모난 불꽃 (거리는 장면 너비 기준이라 폰에서도 알맞게 퍼져요) */
+  const SPK=['#fff3a0','#ffd23f','#ff8a1f'];
+  const sparks=Array.from({length:12},(_,i)=>{const an=(i*30+(i%2?9:-7))*Math.PI/180, d=11+(i*7%9)*1.6;
+    return `<i class="sp" style="--dx:${(Math.cos(an)*d).toFixed(1)}cqw;--dy:${(Math.sin(an)*d*.8).toFixed(1)}cqw;--c:${SPK[i%3]}"></i>`}).join('');
+  const ARC='M10 10 Q 72 8 90 90';
+  const slashes=['A','B'].map((L,i)=>['zhangfei','huangzhong'].includes(P[i].h.img)?'':['s1','s2'].map(n=>`<svg class="slash ${L} ${n}" viewBox="0 0 100 100" aria-hidden="true"><path class="g" d="${ARC}"/><path class="w" d="${ARC}"/></svg>`).join('')).join('');
+  const body=`<div class="duel-top">${panel(P[0])}<span class="vsm">VS</span>${panel(P[1])}</div>
+    <div class="arena" role="img" aria-label="일기토 장면">${spr(P[0],0)}${spr(P[1],1)}<div class="bub A">${esc(ASK[P[0].h.img]||'')}</div><div class="bub B">${esc(mirror?'어이쿠, 거울인가? 똑같은 얼굴이 또 있구나!':(ASK[P[1].h.img]||''))}</div><div class="banner">${mirror?'거울 대결 개시!':'일기토 개시!'}</div>${slashes}<img class="impact i3" src="images/impact.webp" alt="" aria-hidden="true"><img class="impact i2" src="images/impact.webp" alt="" aria-hidden="true"><img class="impact" src="images/impact.webp" alt="" aria-hidden="true">${sparks}<div class="flash"></div></div>
+    <div class="duel-res">${res}</div>`;
+  const sty=mode==='fight'?` style="--el:${el.toFixed(2)}s"`:'';
+  if(ov) return `<div class="duel-ov" role="dialog" aria-modal="true" aria-label="일기토"><div class="ov-card">
+    <div class="duel ${mode}" data-k="${esc(k)}" data-w="${win}"${sty}><div class="duel-hd"><h3>⚔ 일기토${mtag}</h3><button class="btn ghost small" type="button" id="duelsnd">${sndOn()?'🔊 소리 끄기':'🔇 소리 켜기'}</button></div>${body}<p class="snd-credit" style="margin:8px 0 0;font-size:10px;opacity:.55;text-align:center;line-height:1.4">효과음: Pixabay(DRAGON-STUDIO, ProfessionalSFX, David Dumais Audio) · Freesound(SilverIllusionist, TommasoMotteran, CC BY 4.0)</p></div>
+    <button class="btn" type="button" id="duelclose">${mode==='done'?'결과 보기':'건너뛰기'}</button></div></div>`;
+  return `<div class="cmp duel ${mode}" data-k="${esc(k)}"${sty}>
+    <div class="duel-hd"><h3>⚔ 일기토${mtag}</h3><button class="btn ghost small" type="button" id="duelgo">${mode==='idle'?'바로 시작':'다시 보기'}</button></div>
+    <p class="duel-sub">두 사람이 한 번 맞붙어요. 꼰대력이 더 높은 쪽이 이겨요.</p>${body}</div>`;
+}
+/* 결과 이미지: 일기토 끝 장면을 그림 한 장(1080×1350)으로 만들어요 */
+async function drawCard(){
+  const [a,b]=S.players, W=1080, H=1350, cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const g=cv.getContext('2d'), DISP='"Black Han Sans","Noto Sans KR",sans-serif', BODY='"Noto Sans KR",sans-serif';
+  try{await Promise.all([document.fonts.load('900 40px "Noto Sans KR"'),document.fonts.load('700 30px "Noto Sans KR"'),document.fonts.load('40px "Black Han Sans"')])}catch(e){}
+  const load=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src});
+  const P=[a,b].map((p,i)=>{const t=typeOf(p.scores||[],p.pct);return {p,t,h:heroOf(t),i}});
+  const imgs=await Promise.all(P.map(x=>load('images/'+x.h.img+'.webp'))), arena=await load('images/arena.webp');
+  const win=a.pct>b.pct?0:a.pct<b.pct?1:-1;
+  const rr=(x,y,w,h,r)=>{g.beginPath(); if(g.roundRect) g.roundRect(x,y,w,h,r); else g.rect(x,y,w,h)};
+  const fit=(t,max,size,weight,fam)=>{let s=size; g.font=`${weight} ${s}px ${fam}`; while(s>16&&g.measureText(t).width>max){s-=2; g.font=`${weight} ${s}px ${fam}`}};
+  g.fillStyle='#14213d'; g.fillRect(0,0,W,H);
+  g.textAlign='center'; g.textBaseline='alphabetic';
+  g.fillStyle='#fff'; g.font=`64px ${DISP}`; g.fillText('꼰대연구소 일기토',W/2,102);
+  g.fillStyle='#aebbd6'; g.font=`700 30px ${BODY}`; g.fillText(`${round()}회차 · 주제 ${pack().name}`,W/2,152);
+  /* 이름 패널 */
+  P.forEach(x=>{
+    const px=x.i?580:50, pw=450, py=190, ph=200;
+    g.fillStyle='#14214d'; rr(px,py,pw,ph,10); g.fill(); g.lineWidth=6; g.strokeStyle='#e8dfb8'; g.stroke();
+    g.textAlign='left'; g.fillStyle=x.i?'#4fd1a8':'#7ca2ff'; g.fillRect(px+24,py+30,18,18);
+    g.fillStyle='#f6f1dc'; fit(x.p.name,pw-110,44,900,BODY); g.fillText(x.p.name,px+52,py+52);
+    const sub=`${x.t} · ${x.h.n}`; g.fillStyle='#cfd6ea'; fit(sub,pw-48,28,700,BODY); g.fillText(sub,px+24,py+94);
+    g.fillStyle='#0a1030'; g.fillRect(px+24,py+114,pw-48,22);
+    g.fillStyle='#f2a100'; g.fillRect(px+24,py+114,(pw-48)*x.p.pct/100,22);
+    g.strokeStyle='#e8dfb8'; g.lineWidth=2; g.strokeRect(px+24,py+114,pw-48,22);
+    g.textAlign='right'; g.fillStyle='#f6f1dc'; g.font=`900 52px ${BODY}`; g.fillText(x.p.pct+'%',px+pw-24,py+184);
+  });
+  g.textAlign='center'; g.fillStyle='#ff5a6a'; g.font=`60px ${DISP}`; g.fillText('VS',W/2,310);
+  /* 장면: 배경 + 마주 선 두 인물 (진 쪽은 쓰러지고 이긴 쪽은 왕관) */
+  const ay=410, ah=600;
+  g.save(); g.beginPath(); g.rect(0,ay,W,ah); g.clip();
+  if(arena){const sc=Math.max(W/arena.width,ah/arena.height), dw=arena.width*sc, dh=arena.height*sc; g.drawImage(arena,(W-dw)*.65,ay+ah-dh,dw,dh)}
+  else{const gr=g.createLinearGradient(0,ay,0,ay+ah); gr.addColorStop(0,'#5fb0ec'); gr.addColorStop(.62,'#d5f0ff'); g.fillStyle=gr; g.fillRect(0,ay,W,ah); g.fillStyle='#7cbf55'; g.fillRect(0,ay+ah*.66,W,ah*.34)}
+  const sh=470, sw=sh*.923, feet=ay+ah-30;
+  P.forEach((x,i)=>{
+    const img=imgs[i]; if(!img) return;
+    const dir=i?1:-1, cx=W*(i?.75:.25), flip=i?x.h.face==='R':x.h.face==='L', lose=win>=0&&win!==i, won=win===i;
+    g.save(); g.translate(cx,feet);
+    if(lose){g.translate(-dir*sw*.38,0); g.rotate(dir*50*Math.PI/180); if('filter' in g) g.filter='grayscale(75%) brightness(85%)'}
+    if(won){g.scale(1.07,1.07); if('filter' in g) g.filter='drop-shadow(0 0 18px #ffd54a)'}
+    if(flip) g.scale(-1,1);
+    g.drawImage(img,-sw/2,-sh,sw,sh);
+    g.restore();
+    if(won){g.font='96px sans-serif'; g.textAlign='center'; g.fillText('👑',cx,feet-sh*1.07+70)}
+  });
+  g.restore();
+  /* 결과 문구 */
+  const ry=1040;
+  g.fillStyle='#f6f1dc'; rr(50,ry,W-100,210,16); g.fill();
+  g.textAlign='center'; g.fillStyle='#14213d';
+  const title=win<0?'도원결의로 무승부!':`꼰대 대장 ${P[win].h.n} 승!`;
+  fit(title,W-180,76,400,DISP); g.fillText(title,W/2,ry+84);
+  const sub=win<0?`꼰대력 ${a.pct}% 동점이라 승부가 나지 않았어요`:`${P[win].p.name} ${P[win].p.pct}%  vs  ${P[1-win].p.name} ${P[1-win].p.pct}%`;
+  fit(sub,W-180,34,700,BODY); g.fillText(sub,W/2,ry+138);
+  if(win>=0){const q=`“${P[win].h.win}”`; g.fillStyle='#586380'; fit(q,W-180,30,500,BODY); g.fillText(q,W/2,ry+186)}
+  g.fillStyle='#aebbd6'; g.font=`700 32px ${BODY}`; g.fillText('☕ 나도 꼰대력 테스트 해보기 · 꼰대연구소',W/2,1310);
+  return cv;
+}
+/* 폰에서는 공유창, 그 외에는 파일로 저장 */
+async function shareCard(){
+  if(S.players.length<2) return;
+  let cv; try{cv=await drawCard()}catch(e){toast('이미지를 만들지 못했어요'); return}
+  cv.toBlob(async blob=>{
+    if(!blob){toast('이미지를 만들지 못했어요'); return}
+    const file=new File([blob],'꼰대연구소-일기토.png',{type:'image/png'});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'꼰대연구소'}); return}
+    }catch(e){ if(e&&e.name==='AbortError') return }
+    const u=URL.createObjectURL(blob), el=document.createElement('a');
+    el.href=u; el.download=file.name; document.body.appendChild(el); el.click(); el.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),4000); toast('이미지를 저장했어요');
+  },'image/png');
+}
 function testView(m,other){
   const Qs=Q(), n=Qs.length, done=S.step>=n||isDone(m);
   if(!done && S.step===0 && !S.inQuiz){
@@ -1069,13 +1431,14 @@ function testView(m,other){
   const el=S.revealAt?(Date.now()-S.revealAt)/1000:99, play=el<2.4; /* 공개 직후 2.4초 동안만 애니메이션 (그 사이 다시 그려져도 이어서 재생) */
   return `<div class="result ${play?'play':''}" ${play?`style="--el:${el.toFixed(2)}s"`:''}>${certBlock(meP,play)}
     <div class="cmp"><h3 style="font-size:20px">둘의 결과 비교</h3>
-      ${[a,b].map((p,i)=>`<div class="cb ${i?'B':'A'}"><div class="cbh"><span class="nm">${esc(p.name)}</span><span class="v">${p.pct}%</span></div><div class="cbt">${esc(tierOf(p.pct))} · ${esc(typeOf(p.scores||[],p.pct))}</div><div class="bar ${i?'B':'A'}"><i style="width:${p.pct}%"></i></div></div>`).join('')}
+      ${[a,b].map((p,i)=>`<div class="cb ${i?'B':'A'}"><div class="cbh"><span class="nm">${esc(p.name)}</span><span class="v">${p.pct}%</span></div><div class="cbt">${esc(tierOf(p.pct))} · ${esc(heroLabel(p))}</div><div class="bar ${i?'B':'A'}"><i style="width:${p.pct}%"></i></div></div>`).join('')}
       <div class="winner">${winner}</div>
       <div class="chem"><span class="hh">🤝</span><span>${esc(chemLine(a,b))}</span></div>
       <div class="awards">${aw.map(x=>`<div class="award">${x}</div>`).join('')}</div>
       <details ${S.detOpen?'open':''}><summary>질문별 맞히기 결과 (나의 예측)</summary>${detail}</details>
     </div>
-    <div class="row"><button class="btn ghost" id="share">결과 텍스트 복사</button></div>
+    ${duelView(a,b)}
+    <div class="row"><button class="btn ghost" id="share">결과 텍스트 복사</button><button class="btn" id="shareimg">결과 이미지 저장</button></div>
     <div class="cmp"><h3 style="font-size:20px">한 번 더?</h3>
       <div class="row"><select id="nextPack" aria-label="다음 주제">${packOptions(S.nextPack||followPack())}</select><button class="btn" id="next">다시하기</button></div></div>
   </div>`;
@@ -1124,11 +1487,60 @@ function bind(){
   if($('mqnext')) $('mqnext').onclick=()=>{S.mq.i=(S.mq.i+1+Math.floor(Math.random()*(SLANG.length-1)))%SLANG.length;S.mq.a=null;render()};
   if($('peek')) $('peek').onclick=()=>{S.peek=true;render()};
   const dt=document.querySelector('details'); if(dt) dt.ontoggle=()=>{S.detOpen=dt.open};
+  /* 일기토: 화면에 충분히 보이면 시작, 버튼으로 바로 시작·다시 보기 */
+  if(S.duelIO){S.duelIO.disconnect();S.duelIO=null}
+  const ovEl=document.querySelector('.duel-ov');
+  document.body.style.overflow=ovEl?'hidden':''; /* 일기토가 떠 있는 동안 뒤 화면은 스크롤되지 않게 */
+  clearTimeout(S.duelEnd);
+  if($('duelclose')){
+    const dc=$('duelclose');
+    dc.onclick=()=>fightingNow()?skipDuel():closeDuel(); /* 연출 중에는 건너뛰기, 끝난 뒤에는 결과 보기 */
+    if(S.duel&&S.duel.focus){S.duel.focus=false;dc.focus({preventScroll:true})}
+    if(fightingNow()) S.duelEnd=setTimeout(()=>{S.lastHtml=null;render()},(DUEL_T-(Date.now()-S.duel.at)/1000)*1000+120); /* 연출이 끝나면 버튼이 '결과 보기'로 바뀌어요 */
+    scheduleSfx();
+  }
+  const sb=$('duelsnd');
+  if(sb){
+    /* 브라우저가 소리를 막고 있으면(터치 전) 버튼이 알려주고, 누르면 바로 켜져요 */
+    const blocked=()=>{const c=ac(); return !!(sndOn()&&c&&c.state!=='running')};
+    /* 소리가 켜지는 데 잠깐 걸릴 수 있어서, 조금 뒤에도 막혀 있을 때만 안내해요 */
+    const refresh=()=>{
+      if(!sb.isConnected) return;
+      const b=blocked(); sb.classList.toggle('attn',b);
+      sb.textContent=b?'🔈 눌러서 소리 켜기':(sndOn()?'🔊 소리 끄기':'🔇 소리 켜기');
+    };
+    setTimeout(refresh,600); setTimeout(refresh,2500);
+    sb.onclick=()=>{
+      if(blocked()){
+        unlockAudio();
+        ac().resume().then(()=>{sb.classList.remove('attn'); sb.textContent='🔊 소리 끄기'; play('swing')}).catch(()=>{});
+        return;
+      }
+      lsSet('kd-snd',sndOn()?'0':'1'); sb.classList.remove('attn');
+      sb.textContent=sndOn()?'🔊 소리 끄기':'🔇 소리 켜기';
+      if(sndOn()){unlockAudio(); play('swing')}
+    };
+  }
+  const dl=document.querySelector('.cmp.duel');
+  if(dl){
+    if(dl.classList.contains('idle')&&'IntersectionObserver' in window){
+      S.duelIO=new IntersectionObserver(es=>{
+        if(!es.some(e=>e.isIntersecting)) return;
+        S.duelIO.disconnect(); S.duelIO=null;
+        S.duel={k:dl.dataset.k,at:Date.now()};
+        dl.classList.replace('idle','fight'); dl.style.setProperty('--el','0s');
+        if($('duelgo')) $('duelgo').textContent='다시 보기';
+      },{threshold:.6});
+      S.duelIO.observe(dl);
+    }
+    $('duelgo').onclick=()=>{S.duel={k:dl.dataset.k,at:Date.now(),open:true,focus:true};S.lastHtml=null;render()}; /* 버튼을 누르면 큰 화면으로 다시 보여줘요 */
+  }
   if($('nextPack')) $('nextPack').onchange=e=>{S.nextPack=e.target.value};
   if($('next')) $('next').onclick=()=>nextRound($('nextPack').value);
+  if($('shareimg')) $('shareimg').onclick=shareCard;
   if($('share')) $('share').onclick=()=>{
     const [a,b]=S.players;
-    const t=`☕ 꼰대연구소 ${round()}회차 (${pack().name})\n${a.name} ${a.pct}% · ${tierOf(a.pct)} · ${typeOf(a.scores||[],a.pct)}\n${b.name} ${b.pct}% · ${tierOf(b.pct)} · ${typeOf(b.scores||[],b.pct)}\n🤝 ${chemLine(a,b)}`;
+    const t=`☕ 꼰대연구소 ${round()}회차 (${pack().name})\n${a.name} ${a.pct}% · ${tierOf(a.pct)} · ${heroLabel(a)}\n${b.name} ${b.pct}% · ${tierOf(b.pct)} · ${heroLabel(b)}\n🤝 ${chemLine(a,b)}`;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('결과를 복사했어요')).catch(()=>toast('복사하지 못했어요'));
   };
   document.querySelectorAll('.opt[data-s]').forEach(b=>b.onclick=()=>pickMine(+b.dataset.s));
