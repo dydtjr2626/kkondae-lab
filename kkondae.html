@@ -74,6 +74,19 @@ input[type=text]:focus,select:focus{background-color:var(--paper);border-color:v
 .join .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--muted)}
 .join h2{font-size:42px;line-height:1.12;margin-top:-6px;padding-right:76px}
 .join h2 .hl{color:var(--stamp)}
+.join h2 .ln{display:block;width:fit-content}
+/* 첫 화면 문구: 두 줄이 차례로 튀어 오르고, '꼰대'는 도장처럼 쿵 찍힌 뒤 계속 살짝 두근거려요 */
+.join h2.intro .ln{animation:ln-in .55s cubic-bezier(.2,1.4,.4,1) both}
+.join h2.intro .ln:nth-of-type(2){animation-delay:.25s}
+.join h2 .hl{display:inline-block;transform-origin:50% 70%;animation:hl-beat 2.8s ease-in-out 1.6s infinite}
+.join h2.intro .hl{animation:hl-slam .45s cubic-bezier(.2,1.6,.4,1) .45s both,hl-beat 2.8s ease-in-out 1.6s infinite}
+.join h2.intro .ln:nth-of-type(2) .hl{animation-delay:.7s,2s}
+.join .how span{animation:vs-in .4s both}
+.join .how span:nth-child(2){animation-delay:.1s} .join .how span:nth-child(3){animation-delay:.2s}
+@keyframes ln-in{from{opacity:0;transform:translateY(18px) scale(.94)}}
+@keyframes hl-slam{0%{transform:scale(2.2) rotate(-6deg);opacity:0}60%{transform:scale(.92) rotate(1deg);opacity:1}100%{transform:none;opacity:1}}
+@keyframes hl-beat{0%,86%,100%{transform:none}92%{transform:scale(1.1) rotate(-2deg)}}
+@media (prefers-reduced-motion:reduce){.join h2 .ln,.join h2 .hl,.join .how span{animation:none!important}}
 .join p{margin:0;color:var(--muted)}
 .how{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;font-weight:700;color:var(--muted)}
 .how span{padding:3px 10px;border:1px dashed var(--line-2);border-radius:999px;background:var(--paper-2)}
@@ -172,7 +185,19 @@ label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute
 .sl input[type=range]{display:none}
 .pv-grid{display:grid;grid-column:1/-1;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
 .pv-grid button{min-height:40px;border:1.5px solid var(--line-2);border-radius:9px;background:var(--paper);color:var(--ink);font:inherit;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;padding:0}
+.pv-grid button{transition:transform .15s cubic-bezier(.2,1.5,.4,1),box-shadow .15s,background-color .15s,border-color .15s,color .15s}
 .pv-grid button.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.pv-grid button:active{transform:scale(.92)}
+@media (hover:hover){
+  .pv-grid button:hover{transform:translateY(-3px) scale(1.08);border-color:var(--ink);background:var(--paper-2);box-shadow:0 6px 12px -6px rgba(20,33,61,.55)}
+  .pv-grid button.on:hover{background:var(--ink);color:var(--bg)}
+  .tabs button:not([aria-selected=true]):hover{background:var(--paper-2);color:var(--ink)}
+  .how span{transition:transform .15s cubic-bezier(.2,1.5,.4,1)}
+  .how span:hover{transform:translateY(-2px) rotate(-2deg)}
+  summary{transition:color .15s,transform .15s}
+  summary:hover{color:var(--stamp);transform:translateX(3px)}
+}
+@media (prefers-reduced-motion:reduce){.pv-grid button,.how span,summary{transition:none;transform:none!important}}
 .intro .row .btn{padding:13px 18px}
 .intro #start{flex:1.4 1 0;font-size:16px} .intro #startSkip{flex:1 1 0}
 .result{display:flex;flex-direction:column;gap:14px}
@@ -400,6 +425,7 @@ summary{cursor:pointer;font-weight:700;list-style-position:inside}
 .duel-ov #duelclose{font-size:16px;padding:13px 18px}
 .btn.attn{border-color:var(--stamp);color:var(--stamp);animation:pulse 1.4s ease-in-out infinite}
 @keyframes ov-in{from{opacity:0}}
+.duel-ov.seen{animation:none}
 @media (max-width:480px){
   .duel-ov .arena{--sh:165px}
   .duel-ov .ov-card{padding:12px}
@@ -484,8 +510,8 @@ const HERO = {
  "자유로운 영혼형":{n:"유비",img:"liubei",face:"L",say:"형, 편한 대로 하세요. 퇴근도 먼저 하시고요.",win:"형, 이겨서 미안해요. 밥은 제가 살게요."},
  "서열 정리형":{n:"관우",img:"guanyu",face:"L",say:"황충과 같은 반열이라니, 내 심기가 불편하구나.",win:"서열이 곧 법이니라. 물러서거라!"},
  "모임 강제 참석형":{n:"장비",img:"zhangfei",face:"L",say:"내가 한잔 따를 테니 다들 와! 빠지면 정 떨어진다!",win:"안 오면 정 떨어진다고 했지! 술이나 한잔 받아라!"},
- "시간 감시형":{n:"제갈량",img:"zhugeliang",face:"L",say:"지금 몇 시인지 아느냐. 칼퇴는 병법에 없느니라.",win:"지금 시각은 퇴근 3분 전. 모든 것이 계획대로다."},
- "말투 단속반형":{n:"조조",img:"caocao",face:"L",say:"'ㅇㅋ'라… 그 두 글자의 속뜻이 무엇이냐.",win:"방금 그 말투, 수상하구나… 승부는 내 것이다."},
+ "시간 감시형":{n:"제갈량",img:"zhugeliang",face:"R",say:"지금 몇 시인지 아느냐. 칼퇴는 병법에 없느니라.",win:"지금 시각은 퇴근 3분 전. 모든 것이 계획대로다."},
+ "말투 단속반형":{n:"조조",img:"caocao",face:"R",say:"'ㅇㅋ'라… 그 두 글자의 속뜻이 무엇이냐.",win:"방금 그 말투, 수상하구나… 승부는 내 것이다."},
  "라떼 설교형":{n:"황충",img:"huangzhong",face:"R",say:"내가 젊었을 땐 말이야. 나 아직 늙지 않았다!",win:"나 아직 늙지 않았다! 내가 젊었을 땐 말이야…"}
 };
 /* 일기토 시작 전에 서로 주고받는 한마디 (말풍선에 들어가서 짧게) */
@@ -677,7 +703,7 @@ const LocalUser={
 
 const S = {db:null,uid:null,name:lsGet('kd-name')||'',room:'',players:[],msgs:[],meta:null,
   step:0,phase:'pick',pend:0,answers:[],guesses:[],inQuiz:false,gs:50,go:50,shuf:null,
-  tab:'test',unread:false,err:'',lastCount:0,ready:false,subs:[],cd:null,timer:null,seenKey:null,countKey:null,peek:false,
+  tab:'test',unread:false,err:'',lastCount:0,ready:false,subs:[],cd:null,timer:null,seenKey:null,countKey:null,peek:false,peekAt:null,
   skip:false,mq:{i:Math.floor(Math.random()*SLANG.length),a:null,n:0,ok:0},tip:Math.floor(Math.random()*TIPS.length),postedKey:null,lastHtml:null,revealAt:null,detOpen:false,nextPack:null,lastMsgId:null,codeIn:null,packIn:null};
 
 const packKey = () => S.meta && Object.prototype.hasOwnProperty.call(PACKS, S.meta.pack) ? S.meta.pack : 'work';
@@ -733,6 +759,7 @@ const metaRef = ()=>S.db.doc('rooms/'+S.room+'/meta/info');
 const me = ()=>S.players.find(p=>p.id===S.uid);
 const slot = p=>S.players.indexOf(p)===0?'A':'B';
 
+let joinIntroDone=false,joinIntroT=0;
 async function join(code,packKey,keep){
   S.err='';
   code=code.replace(/[^0-9]/g,'').slice(0,4);
@@ -784,7 +811,7 @@ async function startRandom(pack){
   try{
     const j=await rpost('/api/random/join',{uid:S.uid,pack});
     if(j.room){stopRandom(); await join(j.room,pack,false); return}
-  }catch(e){stopRandom(); S.err='랜덤 채팅을 시작하지 못했어요. 서버 연결을 확인해 주세요.'; render(); return}
+  }catch(e){stopRandom(); S.err='랜덤 방에 들어가지 못했어요. 서버 연결을 확인해 주세요.'; render(); return}
   randPoll=setInterval(check,1500);
 }
 function cancelRandom(){rpost('/api/random/cancel',{uid:S.uid}).catch(()=>{}); stopRandom(); render()}
@@ -1044,6 +1071,8 @@ function postReveal(k){
 function render(){
   const active=document.activeElement;
   if(active&&(active.id==='gs'||active.id==='go')) return; /* 슬라이더 드래그 중엔 다시 그리지 않음 */
+  /* 일기토 재생 중엔 다시 그리지 않음: 5초마다 오는 동기화로 화면이 새로 그려지면 창이 번쩍이고 그림이 깜박여요 (끝나면 duelEnd 타이머가 한 번 그려요) */
+  if(S.duel&&S.duel.open&&fightingNow()&&document.querySelector('.duel-ov .duel.fight')) return;
   const joinedRoom = S.room && S.subs.length;
   const html = joinedRoom ? roomView() : joinView();
   if(html===S.lastHtml) return; /* 바뀐 게 없으면 다시 그리지 않음 (포커스·스크롤·애니메이션 유지) */
@@ -1076,21 +1105,23 @@ const packOptions = sel=>Object.keys(PACKS).map(k=>`<option value="${k}" ${k===s
 function joinView(){
   const ok=S.ready&&S.db&&S.uid;
   if(S.randomWait) return `<div class="card join">
-    <div class="eyebrow">랜덤 채팅 · 혼자 하는 중</div>
+    <div class="eyebrow">랜덤 방 · 혼자 하는 중</div>
     <h2>상대를 <span class="hl">찾는</span> 중<br>이에요</h2>
-    <p>다른 사람이 랜덤 채팅을 누르면 자동으로 연결돼요. 최대 2분 기다려요.</p>
+    <p>다른 사람이 랜덤 방 들어가기를 누르면 자동으로 연결돼요. 최대 2분 기다려요.</p>
     <div class="row"><button class="btn ghost" type="button" id="randCancel">대기 취소</button></div>
   </div>`;
+  const joinIntro=!joinIntroDone; /* 등장 연출은 첫 2초 동안만 (그 사이 다시 그려져도 이어서 재생) */
+  if(joinIntro&&!joinIntroT) joinIntroT=setTimeout(()=>{joinIntroDone=true},2000);
   return `<form class="card join" id="joinForm">
     <img class="logo" src="logo.png" alt="꼰대연구소" width="160" height="56">
     <div class="eyebrow">꼰대력 인증 센터 · 2인 1조</div>
-    <h2>나 <span class="hl">꼰대</span>야?<br>너 <span class="hl">꼰대</span>야?</h2>
+    <h2 class="${joinIntro?'intro':''}"><span class="ln">나 <span class="hl">꼰대</span>야?</span><span class="ln">너 <span class="hl">꼰대</span>야?</span></h2>
     <div class="how"><span>① 내 선택</span><span>② 상대 맞히기</span><span>③ 동시 공개</span></div>
     <label>내 이름<input type="text" id="name" maxlength="12" value="${esc(S.name)}" placeholder="예: 김부장" autocomplete="off"></label>
-    <label>방 코드<input type="text" id="code" maxlength="4" inputmode="numeric" pattern="[0-9]*"value="${esc(S.codeIn!=null?S.codeIn:(S.room||''))}" placeholder="친구가 알려준 코드" autocomplete="off"></label>
+    <label>방 코드<input type="text" id="code" maxlength="4" inputmode="numeric" pattern="[0-9]*" value="${esc(S.codeIn!=null?S.codeIn:(S.room||''))}" placeholder="친구가 알려준 코드" autocomplete="off"></label>
     <label>주제 (새 방을 만들 때만 적용)<select id="pack">${packOptions(S.packIn||'work')}</select></label>
     <div class="row"><button class="btn" type="submit" ${ok?'':'disabled'}>입장하기</button>
-    <button class="btn ghost" type="button" id="make" ${ok?'':'disabled'}>새 방 만들기</button><button class="btn ghost" type="button" id="rand" ${ok?'':'disabled'}>랜덤 채팅</button></div>
+    <button class="btn ghost" type="button" id="make" ${ok?'':'disabled'}>새 방 만들기</button><button class="btn ghost" type="button" id="rand" ${ok?'':'disabled'}>랜덤 방 들어가기</button></div>
     <div class="err" role="alert">${esc(S.err||(S.ready&&!ok?'통신을 시작하지 못했어요. 페이지를 새로고침해 주세요.':''))}</div>
   </form>`;
 }
@@ -1308,7 +1339,7 @@ function duelView(a,b,ov){
     <div class="arena" role="img" aria-label="일기토 장면">${spr(P[0],0)}${spr(P[1],1)}<div class="bub A">${esc(ASK[P[0].h.img]||'')}</div><div class="bub B">${esc(mirror?'어이쿠, 거울인가? 똑같은 얼굴이 또 있구나!':(ASK[P[1].h.img]||''))}</div><div class="banner">${mirror?'거울 대결 개시!':'일기토 개시!'}</div>${slashes}<img class="impact i3" src="images/impact.webp" alt="" aria-hidden="true"><img class="impact i2" src="images/impact.webp" alt="" aria-hidden="true"><img class="impact" src="images/impact.webp" alt="" aria-hidden="true">${sparks}<div class="flash"></div></div>
     <div class="duel-res">${res}</div>`;
   const sty=mode==='fight'?` style="--el:${el.toFixed(2)}s"`:'';
-  if(ov) return `<div class="duel-ov" role="dialog" aria-modal="true" aria-label="일기토"><div class="ov-card">
+  if(ov) return `<div class="duel-ov${S.duel.shown?' seen':''}" role="dialog" aria-modal="true" aria-label="일기토"><div class="ov-card">
     <div class="duel ${mode}" data-k="${esc(k)}" data-w="${win}"${sty}><div class="duel-hd"><h3>⚔ 일기토${mtag}</h3><button class="btn ghost small" type="button" id="duelsnd">${sndOn()?'🔊 소리 끄기':'🔇 소리 켜기'}</button></div>${body}<p class="snd-credit" style="margin:8px 0 0;font-size:10px;opacity:.55;text-align:center;line-height:1.4">효과음: Pixabay(DRAGON-STUDIO, ProfessionalSFX, David Dumais Audio) · Freesound(SilverIllusionist, TommasoMotteran, CC BY 4.0)</p></div>
     <button class="btn" type="button" id="duelclose">${mode==='done'?'결과 보기':'건너뛰기'}</button></div></div>`;
   return `<div class="cmp duel ${mode}" data-k="${esc(k)}"${sty}>
@@ -1415,7 +1446,7 @@ function testView(m,other){
     return `<div class="result"><h2 style="font-size:26px">테스트 완료!</h2>
       <p style="margin:0">${waiting} 결과는 둘 다 끝나면 카운트다운 뒤에 동시에 공개돼요.</p>
       <p class="pick" style="margin:0">기다리는 동안 채팅으로 상대의 꼰대력을 슬쩍 떠보세요.</p>
-      ${S.peek?certBlock(mine,false):`<div class="row"><button class="btn ghost" id="peek">내 결과만 먼저 보기</button></div>`}
+      ${S.peek?(()=>{const pe=S.peekAt?(Date.now()-S.peekAt)/1000:99,pl=pe<2.4; /* 먼저 보기도 공개 때처럼 도장이 쾅 찍혀요 */ return `<div ${pl?`style="--el:${pe.toFixed(2)}s"`:''}>${certBlock(mine,pl)}</div>`})():`<div class="row"><button class="btn ghost" id="peek">내 결과만 먼저 보기</button></div>`}
       ${miniQuiz()}</div>`;
   }
   /* 공개 */
@@ -1485,11 +1516,12 @@ function bind(){
   if($('startSkip')) $('startSkip').onclick=()=>startQuiz(true);
   document.querySelectorAll('[data-mq]').forEach(b=>b.onclick=()=>{const it=SLANG[S.mq.i%SLANG.length],k=+b.dataset.mq;S.mq.a=k;S.mq.n++;if(k===it.a)S.mq.ok++;render()});
   if($('mqnext')) $('mqnext').onclick=()=>{S.mq.i=(S.mq.i+1+Math.floor(Math.random()*(SLANG.length-1)))%SLANG.length;S.mq.a=null;render()};
-  if($('peek')) $('peek').onclick=()=>{S.peek=true;render()};
+  if($('peek')) $('peek').onclick=()=>{S.peek=true;S.peekAt=Date.now();render()};
   const dt=document.querySelector('details'); if(dt) dt.ontoggle=()=>{S.detOpen=dt.open};
   /* 일기토: 화면에 충분히 보이면 시작, 버튼으로 바로 시작·다시 보기 */
   if(S.duelIO){S.duelIO.disconnect();S.duelIO=null}
   const ovEl=document.querySelector('.duel-ov');
+  if(ovEl&&S.duel) S.duel.shown=true; /* 한 번 뜬 뒤 다시 그려질 때는 페이드인을 다시 하지 않아요 */
   document.body.style.overflow=ovEl?'hidden':''; /* 일기토가 떠 있는 동안 뒤 화면은 스크롤되지 않게 */
   clearTimeout(S.duelEnd);
   if($('duelclose')){
