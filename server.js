@@ -41,6 +41,7 @@ function notify(room) {
 }
 
 // ----- 랜덤 채팅 대기열 (메모리에만 보관) -----
+const SEEN_MS = 15000; // 대기 중인 사람은 1.5초마다 상태를 확인하므로, 15초 넘게 조용하면 떠난 것으로 본다
 const WAIT_MS = 120000, MATCH_MS = 300000, PACKS = ["work", "school", "family"];
 const queue = [];           // { uid, pack, t } 기다리는 사람
 const matched = new Map();  // uid -> { room, t } 짝이 정해졌지만 아직 알려주지 않은 사람
@@ -50,9 +51,12 @@ function newRoomCode() {
     if (!db["rooms/" + code + "/meta"]) return code;
   }
 }
+// 나 말고 지금 접속해 있는 사람 수: 방 안에서 실시간 연결 중인 사람 + 다른 대기자
+const onlineOthers = uid => sseCount + queue.filter(x => x.uid !== uid).length;
 function pruneLobby() {
   const now = Date.now();
-  for (let i = queue.length - 1; i >= 0; i--) if (now - queue[i].t > WAIT_MS) queue.splice(i, 1);
+  // 대기 시간이 지났거나, 창을 닫아 상태 확인이 끊긴 사람(유령)은 대기열에서 뺀다
+  for (let i = queue.length - 1; i >= 0; i--) if (now - queue[i].t > WAIT_MS || now - queue[i].seen > SEEN_MS) queue.splice(i, 1);
   for (const [k, v] of matched) if (now - v.t > MATCH_MS) matched.delete(k);
 }
 
@@ -161,15 +165,15 @@ function api(req, r, url) {
         if (roomCount() >= ROOM_MAX) return json(r, 503, { error: "server-full" });
         const other = queue.splice(idx, 1)[0];
         const room = newRoomCode();
-        db["rooms/" + room + "/meta"] = { info: { round: 1, pack: other.pack, seed: Math.floor(Math.random() * 1e9) + 1 } };
+        db["rooms/" + room + "/meta"] = { info: { round: 1, pack: other.pack, rand: true, seed: Math.floor(Math.random() * 1e9) + 1 } };
         saveSoon();
         matched.set(other.uid, { room, t: Date.now() });
         return json(r, 200, { room });
       }
       const mine = queue.findIndex(x => x.uid === uid);
       if (mine >= 0) queue.splice(mine, 1);
-      queue.push({ uid, pack, t: Date.now() });
-      return json(r, 200, { waiting: true });
+      queue.push({ uid, pack, t: Date.now(), seen: Date.now() });
+      return json(r, 200, { waiting: true, online: onlineOthers(uid) });
     });
   }
 
@@ -180,7 +184,9 @@ function api(req, r, url) {
     pruneLobby();
     const m = matched.get(uid);
     if (m) { matched.delete(uid); return json(r, 200, { room: m.room }); }
-    if (queue.some(x => x.uid === uid)) return json(r, 200, { waiting: true });
+    const mineQ = queue.find(x => x.uid === uid);
+    if (mineQ) mineQ.seen = Date.now();
+    if (mineQ) return json(r, 200, { waiting: true, online: onlineOthers(uid) });
     return json(r, 200, { gone: true });
   }
 
