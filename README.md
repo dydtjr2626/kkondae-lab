@@ -41,7 +41,7 @@ node server.js
 - `kkondae.html` — 화면
 - `server.js` — 정적 파일 + 방/채팅 API, 변경 알림(SSE), 랜덤 매칭
 - `logo.png` — 로고 이미지
-- `images/` — 일기토 그림. 인물별 `이름.webp`(기본 자세), `이름_wind.webp`(준비), `이름_slash.webp`(베기)와 `arena.webp`(배경), `impact.webp`(부딪힘 효과). 파일명은 영문 소문자·밑줄만 허용됩니다.
+- `images/` — 일기토 그림. 인물별 `이름.webp`(결과 카드용 정면 그림), `이름_idle.webp`(일기토 기본 자세), `이름_wind.webp`(준비), `이름_slash.webp`(베기)와 `arena.webp`(배경), `impact.webp`(부딪힘 효과). 파일명은 영문 소문자·밑줄만 허용됩니다.
 - `sounds/` — 일기토 효과음(mp3)과 출처 표기(`CREDITS.txt`)
 - `package.json` — start 스크립트, Node>=18
 - `LICENSE` — MIT 라이선스

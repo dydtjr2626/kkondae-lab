@@ -369,7 +369,8 @@ summary{cursor:pointer;font-weight:700;list-style-position:inside}
 .duel.idle .dv{visibility:hidden}
 .duel.idle .spr .fx{transform:none;filter:none}
 .duel.idle .slash,.duel.idle .impact{display:none}
-.duel.done .spr .pb{opacity:0} .duel.done .spr .ps{opacity:1} /* 끝난 뒤에는 벤 자세 그대로 */
+.spr .br .pf.pb{opacity:1} .spr .br .sz{visibility:hidden} /* 기본 자세도 옆모습 그림(_idle)을 써요. 원래 정면 그림은 칸 크기만 맞추는 용도 */
+.duel.done .spr .br .pb{opacity:0} .duel.done .spr .br .ps{opacity:1} /* 끝난 뒤에는 벤 자세 그대로 */
 /* 재생 중: 모든 단계가 --el(지난 시간)만큼 앞당겨져 있어서, 중간에 화면이 다시 그려져도 이어서 재생돼요 */
 .duel.fight .spr .br{animation:dbob .72s calc(0s - var(--el,0s)) ease-in-out 9 both}
 .duel.fight .spr .bd{animation:dswing 3s calc(5.4s - var(--el,0s)) ease-in-out both}
@@ -1324,7 +1325,7 @@ function duelView(a,b,ov){
   const spr=(x,i)=>{
     const flip=x.L==='A'?x.h.face==='L':x.h.face==='R'; /* 왼쪽 사람은 오른쪽을, 오른쪽 사람은 왼쪽을 보게 */
     const pflip=x.L==='B'?' style="transform:scaleX(-1)"':''; /* 준비·베기 그림은 모두 오른쪽을 보고 있어서, 오른쪽 사람만 뒤집어요 */
-    return `<div class="spr ${x.L}${win<0?'':win===i?' win':' lose'}"><div class="fx"><div class="bd"><div class="br"><img class="pb" src="images/${x.h.img}.webp" alt="${esc(x.h.n)}" width="421" height="456"${flip?' style="transform:scaleX(-1)"':''}><img class="pf pw" src="images/${x.h.img}_wind.webp" alt="" aria-hidden="true"${pflip}><img class="pf ps" src="images/${x.h.img}_slash.webp" alt="" aria-hidden="true"${pflip}></div></div></div></div>`;
+    return `<div class="spr ${x.L}${win<0?'':win===i?' win':' lose'}"><div class="fx"><div class="bd"><div class="br"><img class="sz" src="images/${x.h.img}.webp" alt="${esc(x.h.n)}" width="421" height="456"><img class="pf pb" src="images/${x.h.img}_idle.webp" alt="" aria-hidden="true"${pflip}><img class="pf pw" src="images/${x.h.img}_wind.webp" alt="" aria-hidden="true"${pflip}><img class="pf ps" src="images/${x.h.img}_slash.webp" alt="" aria-hidden="true"${pflip}></div></div></div></div>`;
   };
   const res=win<0
     ?`<div class="rt">도원결의로 무승부!</div><div class="sub">꼰대력이 ${a.pct}%로 똑같아서 승부가 나지 않았어요.</div>`
